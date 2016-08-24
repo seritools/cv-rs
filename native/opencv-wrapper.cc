@@ -203,7 +203,7 @@ void opencv_cascade_classifier_detect(CCascadeClassifier* cc, CMat* cmat,
     cv::CascadeClassifier* cascade = static_cast<cv::CascadeClassifier*>(cc);
     cv::Mat* image = static_cast<cv::Mat*>(cmat);
     std::vector<cv::Rect> objects;
-    cascade->detectMultiScale(*image, objects);
+    cascade->detectMultiScale(*image, objects, 1.1, 5);
     // Move objects to vec_of_rect
     size_t num = objects.size();
     vec_of_rect->array = (CRect*) malloc(num * sizeof(CRect));
@@ -213,6 +213,46 @@ void opencv_cascade_classifier_detect(CCascadeClassifier* cc, CMat* cmat,
         vec_of_rect->array[i].y = objects[i].y;
         vec_of_rect->array[i].width = objects[i].width;
         vec_of_rect->array[i].height = objects[i].height;
+    }
+}
+
+void opencv_cascade_classifier_detect_output_reject(CCascadeClassifier* cc,
+                                                    CMat* cmat,
+                                                    CVecOfRect* vec_of_rect,
+                                                    CVecOfInt* levels,
+                                                    CVecOfDouble* weights) {
+    cv::CascadeClassifier* cascade = static_cast<cv::CascadeClassifier*>(cc);
+    cv::Mat* image = static_cast<cv::Mat*>(cmat);
+    std::vector<cv::Rect> objects;
+    std::vector<int> reject_levels;
+    std::vector<double> level_weights;
+
+    cascade->detectMultiScale(*image, objects, reject_levels, level_weights,
+                              1.1, 5, 0, cv::Size(), cv::Size(), true);
+
+    // Move objects to rects
+    size_t num = objects.size();
+    vec_of_rect->array = (CRect*) malloc(num * sizeof(CRect));
+    vec_of_rect->size = num;
+    for (size_t i = 0; i < num; i++) {
+        vec_of_rect->array[i].x = objects[i].x;
+        vec_of_rect->array[i].y = objects[i].y;
+        vec_of_rect->array[i].width = objects[i].width;
+        vec_of_rect->array[i].height = objects[i].height;
+    }
+
+    num = reject_levels.size();
+    levels->size = num;
+    levels->array = (int*) malloc(num * sizeof(int));
+    for (size_t i = 0; i < num; i++) {
+        levels->array[i] = reject_levels[i];
+    }
+
+    num = level_weights.size();
+    weights->size = num;
+    weights->array = (double*) malloc(num * sizeof(double));
+    for (size_t i = 0; i < num; i++) {
+        weights->array[i] = level_weights[i];
     }
 }
 

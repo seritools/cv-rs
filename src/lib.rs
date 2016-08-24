@@ -140,6 +140,20 @@ impl RotatedRect {
     }
 }
 
+#[derive(Debug)]
+#[repr(C)]
+struct CVecOfInt {
+    array: *mut c_int,
+    size: usize,
+}
+
+#[derive(Debug)]
+#[repr(C)]
+struct CVecOfDouble {
+    array: *mut c_double,
+    size: usize,
+}
+
 #[repr(C)]
 struct CVecOfRect {
     array: *mut Rect,
@@ -541,6 +555,11 @@ extern "C" {
     fn opencv_cascade_classifier_detect(cc: *mut CCascadeClassifier,
                                         cmat: *mut CMat,
                                         vec_of_rect: *mut CVecOfRect);
+    fn opencv_cascade_classifier_detect_output_reject(cc: *mut CCascadeClassifier,
+                                                      cmat: *mut CMat,
+                                                      vec_of_rect: *mut CVecOfRect,
+                                                      levels: *mut CVecOfInt,
+                                                      weights: *mut CVecOfDouble);
 }
 
 impl CascadeClassifier {
@@ -564,6 +583,25 @@ impl CascadeClassifier {
         }
 
         result.populate_rects();
+    }
+
+    pub fn detect_output_reject(&self, mat: &Mat, result: &mut VecOfRect) {
+        let mut levels = CVecOfInt {
+            array: std::ptr::null_mut(),
+            size: 0,
+        };
+        let mut weights = CVecOfDouble {
+            array: std::ptr::null_mut(),
+            size: 0,
+        };
+        unsafe {
+            opencv_cascade_classifier_detect_output_reject(self.c_cascade_classifier,
+                                             mat.get_cmat(),
+                                             result.get_mut_c_vec_of_rec(),
+                                             &mut levels,
+                                             &mut weights);
+        }
+        println!("{:?} {:?}", levels, weights)
     }
 }
 

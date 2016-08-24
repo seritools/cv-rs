@@ -53,6 +53,16 @@ typedef struct {
 } CVecOfRect;
 
 typedef struct {
+    int* array;
+    size_t size;
+} CVecOfInt;
+
+typedef struct {
+    double* array;
+    size_t size;
+} CVecOfDouble;
+
+typedef struct {
     int32_t v0;
     int32_t v1;
     int32_t v2;
@@ -135,6 +145,11 @@ void opencv_cascade_classifier_drop(CCascadeClassifier* cc);
 // vec_of_rect is dynamically allocated, the caller should take ownership of it.
 void opencv_cascade_classifier_detect(CCascadeClassifier* cc, CMat* cmat,
                                       CVecOfRect* vec_of_rect);
+void opencv_cascade_classifier_detect_output_reject(CCascadeClassifier* cc,
+                                                    CMat* cmat,
+                                                    CVecOfRect* rects,
+                                                    CVecOfInt* levels,
+                                                    CVecOfDouble* weights);
 
 // =============================================================================
 //   VideoTrack
