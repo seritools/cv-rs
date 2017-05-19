@@ -19,15 +19,24 @@ fn main() {
         .clang_arg("-x")
         .clang_arg("c++")
         .clang_arg("-std=c++11")
-        .whitelisted_type("cv::Mat")
-        .whitelisted_type("cv::CascadeClassifier")
         .header("wrapper.hpp")
+        .whitelist_recursively(false)
+        .layout_tests(false)
+
+        .opaque_type("cv::Mat")
+        .opaque_type("cv::InputArray")
+
+    // Offending piece
+    // pub struct std__LIBCPP_NAMESPACE___void_t<type-parameter-0-0> {
+    //    pub _address: u8,
+    // }
+
+        .hide_type("std::*")
+
         .generate()
         .expect("Unable to generate bindings");
 
     // Write the bindings to the $OUT_DIR/bindings.rs file.
     let out_path = PathBuf::from(env::var("CARGO_MANIFEST_DIR").unwrap());
-    bindings
-        .write_to_file(out_path.join("bindings.rs"))
-        .expect("Couldn't write bindings!");
+    bindings.write_to_file(out_path.join("bindings.rs")).expect("Couldn't write bindings!");
 }
