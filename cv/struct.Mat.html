@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="API documentation for the Rust `Mat` struct in crate `cv`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, Mat">
+
+    <title>cv::Mat - Rust</title>
+
+    <link rel="stylesheet" type="text/css" href="../normalize.css">
+    <link rel="stylesheet" type="text/css" href="../rustdoc.css">
+    <link rel="stylesheet" type="text/css" href="../main.css">
+    
+
+    
+    
+</head>
+<body class="rustdoc struct">
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    
+
+    <nav class="sidebar">
+        
+        <p class='location'>Struct Mat</p><div class="block items"><ul><li><a href="#fields">Fields</a></li><li><a href="#methods">Methods</a></li><li><a href="#implementations">Trait Implementations</a></li></ul></div><p class='location'><a href='index.html'>cv</a></p><script>window.sidebarCurrent = {name: 'Mat', ty: 'struct', relpath: ''};</script><script defer src="sidebar-items.js"></script>
+    </nav>
+
+    <nav class="sub">
+        <form class="search-form js-only">
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Click or press ‘S’ to search, ‘?’ for more options…"
+                       type="search">
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content">
+<h1 class='fqn'><span class='in-band'>Struct <a href='index.html'>cv</a>::<wbr><a class="struct" href=''>Mat</a></span><span class='out-of-band'><span id='render-detail'>
+                   <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                       [<span class='inner'>&#x2212;</span>]
+                   </a>
+               </span><a class='srclink' href='../src/cv/core.rs.html#22-37' title='goto source code'>[src]</a></span></h1>
+<pre class='rust struct'>pub struct Mat {
+    pub inner: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.pointer.html">*mut </a>CMat,
+    pub cols: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i32.html">i32</a>,
+    pub rows: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i32.html">i32</a>,
+    pub depth: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i32.html">i32</a>,
+    pub channels: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i32.html">i32</a>,
+}</pre><div class='docblock'><p>This wraps OpenCV&#39;s <code>Mat</code> class which is designed for n-dimensional dense
+array. It&#39;s the most widely used data structure in image/video processing
+since images are often stored as <code>Mat</code>.</p>
+</div><h2 id='fields' class='fields small-section-header'>
+                       Fields<a href='#fields' class='anchor'></a></h2><span id='structfield.inner' class="structfield">
+                           <span id='inner.v' class='invisible'>
+                           <code>inner: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.pointer.html">*mut </a>CMat</code>
+                           </span></span><div class='docblock'><p>Pointer to the actual C/C++ data structure</p>
+</div><span id='structfield.cols' class="structfield">
+                           <span id='cols.v' class='invisible'>
+                           <code>cols: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i32.html">i32</a></code>
+                           </span></span><div class='docblock'><p>Number of columns</p>
+</div><span id='structfield.rows' class="structfield">
+                           <span id='rows.v' class='invisible'>
+                           <code>rows: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i32.html">i32</a></code>
+                           </span></span><div class='docblock'><p>Number of rows</p>
+</div><span id='structfield.depth' class="structfield">
+                           <span id='depth.v' class='invisible'>
+                           <code>depth: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i32.html">i32</a></code>
+                           </span></span><div class='docblock'><p>Depth of this mat (it should be the type).</p>
+</div><span id='structfield.channels' class="structfield">
+                           <span id='channels.v' class='invisible'>
+                           <code>channels: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i32.html">i32</a></code>
+                           </span></span><div class='docblock'><p>Channels of this mat</p>
+</div>
+                    <h2 id='methods' class='small-section-header'>
+                      Methods<a href='#methods' class='anchor'></a>
+                    </h2>
+                <h3 id='impl' class='impl'><span class='in-band'><code>impl <a class="struct" href="../cv/struct.Mat.html" title="struct cv::Mat">Mat</a></code><a href='#impl' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/cv/core.rs.html#300-442' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.from_raw' class="method"><span id='from_raw.v' class='invisible'><code>fn <a href='#method.from_raw' class='fnname'>from_raw</a>(raw: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.pointer.html">*mut </a>CMat) -&gt; <a class="struct" href="../cv/struct.Mat.html" title="struct cv::Mat">Mat</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/cv/core.rs.html#304-312' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Creates a <code>Mat</code> object from raw <code>CMat</code> pointer. This will read the rows
+and cols of the image.</p>
+</div><h4 id='method.new' class="method"><span id='new.v' class='invisible'><code>fn <a href='#method.new' class='fnname'>new</a>() -&gt; <a class="struct" href="../cv/struct.Mat.html" title="struct cv::Mat">Mat</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/cv/core.rs.html#315-318' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Creates an empty <code>Mat</code> struct.</p>
+</div><h4 id='method.from_buffer' class="method"><span id='from_buffer.v' class='invisible'><code>fn <a href='#method.from_buffer' class='fnname'>from_buffer</a>(rows: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i32.html">i32</a>, cols: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i32.html">i32</a>, cv_type: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i32.html">i32</a>, buf: &amp;<a class="struct" href="https://doc.rust-lang.org/nightly/alloc/vec/struct.Vec.html" title="struct alloc::vec::Vec">Vec</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>&gt;) -&gt; <a class="struct" href="../cv/struct.Mat.html" title="struct cv::Mat">Mat</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/cv/core.rs.html#345-348' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Creates a new <code>Mat</code> from buffer. Note that internally opencv function
+won&#39;t take ownership of the Mat, but when we call <code>drop</code>, it will
+deallocate the memory. To prevent double-freeing, you must <code>mem::forget</code>
+it after use.</p>
+
+<p>The following example shows how to get the data from an image and create
+a new image with the data (also forgets it).</p>
+
+<pre class="rust rust-example-rendered">
+<span class="kw">let</span> <span class="ident">buffer</span> <span class="op">=</span> <span class="ident">image</span>.<span class="ident">data</span>();
+<span class="kw">let</span> <span class="ident">size</span> <span class="op">=</span> <span class="ident">image</span>.<span class="ident">size</span>();
+<span class="kw">let</span> <span class="ident">s</span> <span class="op">=</span> (<span class="ident">size</span>.<span class="ident">width</span> <span class="op">*</span> <span class="ident">size</span>.<span class="ident">height</span> <span class="op">*</span> <span class="number">3</span>) <span class="kw">as</span> <span class="ident">usize</span>;
+
+<span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">vec</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">with_capacity</span>(<span class="ident">s</span>);
+<span class="kw">unsafe</span> {
+  <span class="ident">vec</span>.<span class="ident">set_len</span>(<span class="ident">s</span>);
+  <span class="ident">copy</span>(<span class="ident">buffer</span>, <span class="ident">vec</span>.<span class="ident">as_mut_ptr</span>(), <span class="ident">s</span>);
+}
+<span class="kw">let</span> <span class="ident">new_image</span> <span class="op">=</span> <span class="ident">Mat</span>::<span class="ident">from_buffer</span>(
+  <span class="ident">size</span>.<span class="ident">height</span>, <span class="ident">size</span>.<span class="ident">width</span>, <span class="ident">CvType</span>::<span class="ident">Cv8UC3</span> <span class="kw">as</span> <span class="ident">i32</span>, <span class="kw-2">&amp;</span><span class="ident">vec</span>);
+
+ <span class="comment">// . . . use new_image here, such as new_image.show(..) . . .</span>
+
+::<span class="ident">std</span>::<span class="ident">mem</span>::<span class="ident">forget</span>(<span class="ident">new_image</span>);</pre>
+</div><h4 id='method.with_size' class="method"><span id='with_size.v' class='invisible'><code>fn <a href='#method.with_size' class='fnname'>with_size</a>(rows: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i32.html">i32</a>, cols: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i32.html">i32</a>, t: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i32.html">i32</a>) -&gt; Self</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/cv/core.rs.html#351-354' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Create an empty <code>Mat</code> with specific size (rows, cols and types).</p>
+</div><h4 id='method.zeros' class="method"><span id='zeros.v' class='invisible'><code>fn <a href='#method.zeros' class='fnname'>zeros</a>(rows: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i32.html">i32</a>, cols: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i32.html">i32</a>, t: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i32.html">i32</a>) -&gt; Self</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/cv/core.rs.html#357-360' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Create an empty <code>Mat</code> with specific size (rows, cols and types).</p>
+</div><h4 id='method.data' class="method"><span id='data.v' class='invisible'><code>fn <a href='#method.data' class='fnname'>data</a>(&amp;self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.pointer.html">*const </a><a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/cv/core.rs.html#363-365' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Returns the raw data (as a uchar pointer)</p>
+</div><h4 id='method.total' class="method"><span id='total.v' class='invisible'><code>fn <a href='#method.total' class='fnname'>total</a>(&amp;self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/cv/core.rs.html#371-373' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Returns the total number of array elements. The method returns the
+number of array elements (a number of pixels if the array represents an
+image). For example, images with 1920x1080 resolution will return
+2073600.</p>
+</div><h4 id='method.elem_size' class="method"><span id='elem_size.v' class='invisible'><code>fn <a href='#method.elem_size' class='fnname'>elem_size</a>(&amp;self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/cv/core.rs.html#378-380' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Returns the matrix element size in bytes. The method returns the matrix
+element size in bytes. For example, if the matrix type is CV_16SC3 , the
+method returns 3*sizeof(short) or 6.</p>
+</div><h4 id='method.size' class="method"><span id='size.v' class='invisible'><code>fn <a href='#method.size' class='fnname'>size</a>(&amp;self) -&gt; <a class="struct" href="../cv/struct.Size2i.html" title="struct cv::Size2i">Size2i</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/cv/core.rs.html#383-385' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Returns the size of this matrix.</p>
+</div><h4 id='method.is_valid' class="method"><span id='is_valid.v' class='invisible'><code>fn <a href='#method.is_valid' class='fnname'>is_valid</a>(&amp;self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/cv/core.rs.html#388-390' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Check if the <code>Mat</code> is valid or not.</p>
+</div><h4 id='method.roi' class="method"><span id='roi.v' class='invisible'><code>fn <a href='#method.roi' class='fnname'>roi</a>(&amp;self, rect: <a class="struct" href="../cv/struct.Rect.html" title="struct cv::Rect">Rect</a>) -&gt; <a class="struct" href="../cv/struct.Mat.html" title="struct cv::Mat">Mat</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/cv/core.rs.html#393-396' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Return a region of interest from a <code>Mat</code> specfied by a <code>Rect</code>.</p>
+</div><h4 id='method.logic_and' class="method"><span id='logic_and.v' class='invisible'><code>fn <a href='#method.logic_and' class='fnname'>logic_and</a>(&amp;mut self, mask: <a class="struct" href="../cv/struct.Mat.html" title="struct cv::Mat">Mat</a>)</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/cv/core.rs.html#401-405' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Apply a mask to myself.</p>
+</div><h4 id='method.flip' class="method"><span id='flip.v' class='invisible'><code>fn <a href='#method.flip' class='fnname'>flip</a>(&amp;mut self, code: <a class="enum" href="../cv/enum.FlipCode.html" title="enum cv::FlipCode">FlipCode</a>)</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/cv/core.rs.html#408-417' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Flips an image around vertical, horizontal, or both axes.</p>
+</div><h4 id='method.show' class="method"><span id='show.v' class='invisible'><code>fn <a href='#method.show' class='fnname'>show</a>(&amp;self, name: &amp;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a>, delay: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i32.html">i32</a>) -&gt; <a class="type" href="../cv/errors/type.Result.html" title="type cv::errors::Result">Result</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.tuple.html">()</a>&gt;</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/cv/core.rs.html#421-433' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Calls out to highgui to show the image, the duration is specified by
+<code>delay</code>.</p>
+</div><h4 id='method.cv_type' class="method"><span id='cv_type.v' class='invisible'><code>fn <a href='#method.cv_type' class='fnname'>cv_type</a>(&amp;self) -&gt; <a class="type" href="../cv/errors/type.Result.html" title="type cv::errors::Result">Result</a>&lt;<a class="enum" href="../cv/enum.CvType.html" title="enum cv::CvType">CvType</a>&gt;</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/cv/core.rs.html#437-441' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Returns the images type. For supported types, please see
+<a href="enum.CvType">CvType</a>.</p>
+</div></div><h3 id='impl-1' class='impl'><span class='in-band'><code>impl <a class="struct" href="../cv/struct.Mat.html" title="struct cv::Mat">Mat</a></code><a href='#impl-1' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/cv/core.rs.html#569-636' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.in_range' class="method"><span id='in_range.v' class='invisible'><code>fn <a href='#method.in_range' class='fnname'>in_range</a>(&amp;self, lowerb: <a class="struct" href="../cv/struct.Scalar.html" title="struct cv::Scalar">Scalar</a>, upperb: <a class="struct" href="../cv/struct.Scalar.html" title="struct cv::Scalar">Scalar</a>) -&gt; <a class="struct" href="../cv/struct.Mat.html" title="struct cv::Mat">Mat</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/cv/core.rs.html#573-577' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Check if Mat elements lie between the elements of two other arrays
+(lowerb and upperb). The output Mat has the same size as <code>self</code> and
+CV_8U type.</p>
+</div><h4 id='method.mix_channels' class="method"><span id='mix_channels.v' class='invisible'><code>fn <a href='#method.mix_channels' class='fnname'>mix_channels</a>(<br>&nbsp;&nbsp;&nbsp;&nbsp;&amp;self, <br>&nbsp;&nbsp;&nbsp;&nbsp;nsrcs: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a>, <br>&nbsp;&nbsp;&nbsp;&nbsp;ndsts: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a>, <br>&nbsp;&nbsp;&nbsp;&nbsp;from_to: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.pointer.html">*const </a><a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i32.html">i32</a>, <br>&nbsp;&nbsp;&nbsp;&nbsp;npairs: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a><br>) -&gt; <a class="struct" href="../cv/struct.Mat.html" title="struct cv::Mat">Mat</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/cv/core.rs.html#583-595' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Copy specified channels from <code>self</code> to the specified channels of output
+<code>Mat</code>.</p>
+</div><h4 id='method.normalize' class="method"><span id='normalize.v' class='invisible'><code>fn <a href='#method.normalize' class='fnname'>normalize</a>(&amp;self, alpha: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.f64.html">f64</a>, beta: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.f64.html">f64</a>, t: <a class="enum" href="../cv/enum.NormTypes.html" title="enum cv::NormTypes">NormTypes</a>) -&gt; <a class="struct" href="../cv/struct.Mat.html" title="struct cv::Mat">Mat</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/cv/core.rs.html#598-602' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Normalize the Mat according to the normalization type.</p>
+</div><h4 id='method.and' class="method"><span id='and.v' class='invisible'><code>fn <a href='#method.and' class='fnname'>and</a>(&amp;self, another: &amp;<a class="struct" href="../cv/struct.Mat.html" title="struct cv::Mat">Mat</a>) -&gt; <a class="struct" href="../cv/struct.Mat.html" title="struct cv::Mat">Mat</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/cv/core.rs.html#605-609' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Computes bitwise conjunction between two Mat</p>
+</div><h4 id='method.or' class="method"><span id='or.v' class='invisible'><code>fn <a href='#method.or' class='fnname'>or</a>(&amp;self, another: &amp;<a class="struct" href="../cv/struct.Mat.html" title="struct cv::Mat">Mat</a>) -&gt; <a class="struct" href="../cv/struct.Mat.html" title="struct cv::Mat">Mat</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/cv/core.rs.html#612-616' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Computes bitwise disjunction between two Mat</p>
+</div><h4 id='method.xor' class="method"><span id='xor.v' class='invisible'><code>fn <a href='#method.xor' class='fnname'>xor</a>(&amp;self, another: &amp;<a class="struct" href="../cv/struct.Mat.html" title="struct cv::Mat">Mat</a>) -&gt; <a class="struct" href="../cv/struct.Mat.html" title="struct cv::Mat">Mat</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/cv/core.rs.html#619-623' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Computes bitwise &quot;exclusive or&quot; between two Mat</p>
+</div><h4 id='method.not' class="method"><span id='not.v' class='invisible'><code>fn <a href='#method.not' class='fnname'>not</a>(&amp;self) -&gt; <a class="struct" href="../cv/struct.Mat.html" title="struct cv::Mat">Mat</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/cv/core.rs.html#626-630' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Computes bitwise &quot;exclusive or&quot; between two Mat</p>
+</div><h4 id='method.count_non_zero' class="method"><span id='count_non_zero.v' class='invisible'><code>fn <a href='#method.count_non_zero' class='fnname'>count_non_zero</a>(&amp;self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i32.html">i32</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/cv/core.rs.html#633-635' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Counts non-zero array elements.</p>
+</div></div><h3 id='impl-2' class='impl'><span class='in-band'><code>impl <a class="struct" href="../cv/struct.Mat.html" title="struct cv::Mat">Mat</a></code><a href='#impl-2' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/cv/imgproc.rs.html#228-379' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.rectangle' class="method"><span id='rectangle.v' class='invisible'><code>fn <a href='#method.rectangle' class='fnname'>rectangle</a>(&amp;self, rect: <a class="struct" href="../cv/struct.Rect.html" title="struct cv::Rect">Rect</a>)</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/cv/imgproc.rs.html#230-232' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Draws a simple, thick, or filled up-right rectangle.</p>
+</div><h4 id='method.rectangle_custom' class="method"><span id='rectangle_custom.v' class='invisible'><code>fn <a href='#method.rectangle_custom' class='fnname'>rectangle_custom</a>(<br>&nbsp;&nbsp;&nbsp;&nbsp;&amp;self, <br>&nbsp;&nbsp;&nbsp;&nbsp;rect: <a class="struct" href="../cv/struct.Rect.html" title="struct cv::Rect">Rect</a>, <br>&nbsp;&nbsp;&nbsp;&nbsp;color: <a class="struct" href="../cv/struct.Scalar.html" title="struct cv::Scalar">Scalar</a>, <br>&nbsp;&nbsp;&nbsp;&nbsp;thickness: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i32.html">i32</a>, <br>&nbsp;&nbsp;&nbsp;&nbsp;linetype: <a class="enum" href="../cv/enum.LineTypes.html" title="enum cv::LineTypes">LineTypes</a><br>)</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/cv/imgproc.rs.html#235-237' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Draws a simple, thick, or filled up-right rectangle.</p>
+</div><h4 id='method.rectangle2f' class="method"><span id='rectangle2f.v' class='invisible'><code>fn <a href='#method.rectangle2f' class='fnname'>rectangle2f</a>(&amp;self, rect: Rect2f)</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/cv/imgproc.rs.html#240-243' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Draw a simple, thick, or filled up-right rectangle.</p>
+</div><h4 id='method.ellipse' class="method"><span id='ellipse.v' class='invisible'><code>fn <a href='#method.ellipse' class='fnname'>ellipse</a>(<br>&nbsp;&nbsp;&nbsp;&nbsp;&amp;self, <br>&nbsp;&nbsp;&nbsp;&nbsp;center: <a class="struct" href="../cv/struct.Point2i.html" title="struct cv::Point2i">Point2i</a>, <br>&nbsp;&nbsp;&nbsp;&nbsp;axes: <a class="struct" href="../cv/struct.Size2i.html" title="struct cv::Size2i">Size2i</a>, <br>&nbsp;&nbsp;&nbsp;&nbsp;angle: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.f64.html">f64</a>, <br>&nbsp;&nbsp;&nbsp;&nbsp;start_angle: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.f64.html">f64</a>, <br>&nbsp;&nbsp;&nbsp;&nbsp;end_angle: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.f64.html">f64</a><br>)</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/cv/imgproc.rs.html#246-265' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Draws a simple, thick ellipse</p>
+</div><h4 id='method.ellipse_custom' class="method"><span id='ellipse_custom.v' class='invisible'><code>fn <a href='#method.ellipse_custom' class='fnname'>ellipse_custom</a>(<br>&nbsp;&nbsp;&nbsp;&nbsp;&amp;self, <br>&nbsp;&nbsp;&nbsp;&nbsp;center: <a class="struct" href="../cv/struct.Point2i.html" title="struct cv::Point2i">Point2i</a>, <br>&nbsp;&nbsp;&nbsp;&nbsp;axes: <a class="struct" href="../cv/struct.Size2i.html" title="struct cv::Size2i">Size2i</a>, <br>&nbsp;&nbsp;&nbsp;&nbsp;angle: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.f64.html">f64</a>, <br>&nbsp;&nbsp;&nbsp;&nbsp;start_angle: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.f64.html">f64</a>, <br>&nbsp;&nbsp;&nbsp;&nbsp;end_angle: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.f64.html">f64</a>, <br>&nbsp;&nbsp;&nbsp;&nbsp;color: <a class="struct" href="../cv/struct.Scalar.html" title="struct cv::Scalar">Scalar</a>, <br>&nbsp;&nbsp;&nbsp;&nbsp;thickness: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i32.html">i32</a>, <br>&nbsp;&nbsp;&nbsp;&nbsp;linetype: <a class="enum" href="../cv/enum.LineTypes.html" title="enum cv::LineTypes">LineTypes</a>, <br>&nbsp;&nbsp;&nbsp;&nbsp;shift: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i32.html">i32</a><br>)</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/cv/imgproc.rs.html#268-294' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Draws a custom ellipse</p>
+</div><h4 id='method.cvt_color' class="method"><span id='cvt_color.v' class='invisible'><code>fn <a href='#method.cvt_color' class='fnname'>cvt_color</a>(&amp;self, code: <a class="enum" href="../cv/imgproc/enum.ColorConversionCodes.html" title="enum cv::imgproc::ColorConversionCodes">ColorConversionCodes</a>) -&gt; <a class="struct" href="../cv/struct.Mat.html" title="struct cv::Mat">Mat</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/cv/imgproc.rs.html#297-301' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Convert an image from one color space to another.</p>
+</div><h4 id='method.pyr_down' class="method"><span id='pyr_down.v' class='invisible'><code>fn <a href='#method.pyr_down' class='fnname'>pyr_down</a>(&amp;self) -&gt; <a class="struct" href="../cv/struct.Mat.html" title="struct cv::Mat">Mat</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/cv/imgproc.rs.html#305-309' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Blurs an image and downsamples it. This function performs the
+downsampling step of the Gaussian pyramid construction.</p>
+</div><h4 id='method.resize_to' class="method"><span id='resize_to.v' class='invisible'><code>fn <a href='#method.resize_to' class='fnname'>resize_to</a>(&amp;self, dsize: <a class="struct" href="../cv/struct.Size2i.html" title="struct cv::Size2i">Size2i</a>, interpolation: <a class="enum" href="../cv/imgproc/enum.InterpolationFlag.html" title="enum cv::imgproc::InterpolationFlag">InterpolationFlag</a>) -&gt; <a class="struct" href="../cv/struct.Mat.html" title="struct cv::Mat">Mat</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/cv/imgproc.rs.html#315-319' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Resizes an image.</p>
+
+<p>The function resize resizes the image down to or up to the specified
+size.</p>
+</div><h4 id='method.resize_by' class="method"><span id='resize_by.v' class='invisible'><code>fn <a href='#method.resize_by' class='fnname'>resize_by</a>(&amp;self, fx: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.f64.html">f64</a>, fy: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.f64.html">f64</a>, interpolation: <a class="enum" href="../cv/imgproc/enum.InterpolationFlag.html" title="enum cv::imgproc::InterpolationFlag">InterpolationFlag</a>) -&gt; <a class="struct" href="../cv/struct.Mat.html" title="struct cv::Mat">Mat</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/cv/imgproc.rs.html#325-338' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Resizes an image.</p>
+
+<p>The function resize resizes the image down to or up to the specified
+size.</p>
+</div><h4 id='method.calc_hist' class="method"><span id='calc_hist.v' class='invisible'><code>fn <a href='#method.calc_hist' class='fnname'>calc_hist</a>(<br>&nbsp;&nbsp;&nbsp;&nbsp;&amp;self, <br>&nbsp;&nbsp;&nbsp;&nbsp;channels: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.pointer.html">*const </a><a class="type" href="https://doc.rust-lang.org/libc/x86_64-unknown-linux-gnu/libc/type.c_int.html" title="type libc::c_int">c_int</a>, <br>&nbsp;&nbsp;&nbsp;&nbsp;mask: <a class="struct" href="../cv/struct.Mat.html" title="struct cv::Mat">Mat</a>, <br>&nbsp;&nbsp;&nbsp;&nbsp;dims: <a class="type" href="https://doc.rust-lang.org/libc/x86_64-unknown-linux-gnu/libc/type.c_int.html" title="type libc::c_int">c_int</a>, <br>&nbsp;&nbsp;&nbsp;&nbsp;hist_size: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.pointer.html">*const </a><a class="type" href="https://doc.rust-lang.org/libc/x86_64-unknown-linux-gnu/libc/type.c_int.html" title="type libc::c_int">c_int</a>, <br>&nbsp;&nbsp;&nbsp;&nbsp;ranges: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.pointer.html">*const </a><a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.pointer.html">*const </a><a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.f32.html">f32</a><br>) -&gt; <a class="struct" href="../cv/struct.Mat.html" title="struct cv::Mat">Mat</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/cv/imgproc.rs.html#341-363' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Calculate a histogram of an image.</p>
+</div><h4 id='method.calc_back_project' class="method"><span id='calc_back_project.v' class='invisible'><code>fn <a href='#method.calc_back_project' class='fnname'>calc_back_project</a>(<br>&nbsp;&nbsp;&nbsp;&nbsp;&amp;self, <br>&nbsp;&nbsp;&nbsp;&nbsp;channels: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.pointer.html">*const </a><a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i32.html">i32</a>, <br>&nbsp;&nbsp;&nbsp;&nbsp;hist: &amp;<a class="struct" href="../cv/struct.Mat.html" title="struct cv::Mat">Mat</a>, <br>&nbsp;&nbsp;&nbsp;&nbsp;ranges: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.pointer.html">*const </a><a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.pointer.html">*const </a><a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.f32.html">f32</a><br>) -&gt; <a class="struct" href="../cv/struct.Mat.html" title="struct cv::Mat">Mat</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/cv/imgproc.rs.html#367-378' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Calculate the back projection of a histogram. The function calculates
+the back project of the histogram.</p>
+</div></div><h3 id='impl-3' class='impl'><span class='in-band'><code>impl <a class="struct" href="../cv/struct.Mat.html" title="struct cv::Mat">Mat</a></code><a href='#impl-3' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/cv/imgcodecs.rs.html#123-154' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.from_path' class="method"><span id='from_path.v' class='invisible'><code>fn <a href='#method.from_path' class='fnname'>from_path</a>&lt;P:&nbsp;<a class="trait" href="https://doc.rust-lang.org/nightly/core/convert/trait.AsRef.html" title="trait core::convert::AsRef">AsRef</a>&lt;<a class="struct" href="https://doc.rust-lang.org/nightly/std/path/struct.Path.html" title="struct std::path::Path">Path</a>&gt;&gt;(path: P, flags: <a class="enum" href="../cv/imgcodecs/enum.ImreadModes.html" title="enum cv::imgcodecs::ImreadModes">ImreadModes</a>) -&gt; <a class="enum" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html" title="enum core::option::Option">Option</a>&lt;<a class="struct" href="../cv/struct.Mat.html" title="struct cv::Mat">Mat</a>&gt;</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/cv/imgcodecs.rs.html#125-133' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Creates a <code>Mat</code> from reading the image specified by the path.</p>
+</div><h4 id='method.imdecode' class="method"><span id='imdecode.v' class='invisible'><code>fn <a href='#method.imdecode' class='fnname'>imdecode</a>(buf: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.slice.html">&amp;[</a><a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a><a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.slice.html">]</a>, mode: <a class="enum" href="../cv/imgcodecs/enum.ImreadModes.html" title="enum cv::imgcodecs::ImreadModes">ImreadModes</a>) -&gt; <a class="struct" href="../cv/struct.Mat.html" title="struct cv::Mat">Mat</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/cv/imgcodecs.rs.html#136-139' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Decodes an image from <code>buf</code> according to the specified mode.</p>
+</div><h4 id='method.imencode' class="method"><span id='imencode.v' class='invisible'><code>fn <a href='#method.imencode' class='fnname'>imencode</a>(&amp;self, ext: &amp;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a>, f: <a class="struct" href="https://doc.rust-lang.org/nightly/alloc/vec/struct.Vec.html" title="struct alloc::vec::Vec">Vec</a>&lt;<a class="enum" href="../cv/imgcodecs/enum.ImwriteFlags.html" title="enum cv::imgcodecs::ImwriteFlags">ImwriteFlags</a>&gt;) -&gt; <a class="enum" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html" title="enum core::option::Option">Option</a>&lt;<a class="struct" href="https://doc.rust-lang.org/nightly/alloc/vec/struct.Vec.html" title="struct alloc::vec::Vec">Vec</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>&gt;&gt;</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/cv/imgcodecs.rs.html#144-153' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Encodes an image; the encoding scheme depends on the extension provided;
+additional write flags can be passed in using a vector. If successful,
+returns an owned vector of the encoded image.</p>
+</div></div><h3 id='impl-4' class='impl'><span class='in-band'><code>impl <a class="struct" href="../cv/struct.Mat.html" title="struct cv::Mat">Mat</a></code><a href='#impl-4' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/cv/video.rs.html#52-60' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.camshift' class="method"><span id='camshift.v' class='invisible'><code>fn <a href='#method.camshift' class='fnname'>camshift</a>(&amp;self, wndw: <a class="struct" href="../cv/struct.Rect.html" title="struct cv::Rect">Rect</a>, criteria: &amp;<a class="struct" href="../cv/video/tracking/struct.TermCriteria.html" title="struct cv::video::tracking::TermCriteria">TermCriteria</a>) -&gt; RotatedRect</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/cv/video.rs.html#57-59' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Finds an object center, size, and orientation; returns as <code>RotatedRect</code>.</p>
+
+<ul>
+<li><code>wndw</code> - initial search window.</li>
+<li><code>criteria</code> - stop criteria for the underlying meanShift.</li>
+</ul>
+</div></div>
+            <h2 id='implementations' class='small-section-header'>
+              Trait Implementations<a href='#implementations' class='anchor'></a>
+            </h2>
+        <h3 id='impl-Debug' class='impl'><span class='in-band'><code>impl <a class="trait" href="https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html" title="trait core::fmt::Debug">Debug</a> for <a class="struct" href="../cv/struct.Mat.html" title="struct cv::Mat">Mat</a></code><a href='#impl-Debug' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/cv/core.rs.html#21' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.fmt' class="method"><span id='fmt.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html#tymethod.fmt' class='fnname'>fmt</a>(&amp;self, __arg_0: &amp;mut <a class="struct" href="https://doc.rust-lang.org/nightly/core/fmt/struct.Formatter.html" title="struct core::fmt::Formatter">Formatter</a>) -&gt; <a class="type" href="https://doc.rust-lang.org/nightly/core/fmt/type.Result.html" title="type core::fmt::Result">Result</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/cv/core.rs.html#21' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Formats the value using the given formatter.</p>
+</div></div><h3 id='impl-Send' class='impl'><span class='in-band'><code>impl <a class="trait" href="https://doc.rust-lang.org/nightly/core/marker/trait.Send.html" title="trait core::marker::Send">Send</a> for <a class="struct" href="../cv/struct.Mat.html" title="struct cv::Mat">Mat</a></code><a href='#impl-Send' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/cv/core.rs.html#41' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'></div><h3 id='impl-Drop' class='impl'><span class='in-band'><code>impl <a class="trait" href="https://doc.rust-lang.org/nightly/core/ops/drop/trait.Drop.html" title="trait core::ops::drop::Drop">Drop</a> for <a class="struct" href="../cv/struct.Mat.html" title="struct cv::Mat">Mat</a></code><a href='#impl-Drop' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/cv/core.rs.html#444-450' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.drop' class="method"><span id='drop.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/ops/drop/trait.Drop.html#tymethod.drop' class='fnname'>drop</a>(&amp;mut self)</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/cv/core.rs.html#445-449' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Executes the destructor for this type. <a href="https://doc.rust-lang.org/nightly/core/ops/drop/trait.Drop.html#tymethod.drop">Read more</a></p>
+</div></div></section>
+    <section id='search' class="content hidden"></section>
+
+    <section class="footer"></section>
+
+    <aside id="help" class="hidden">
+        <div>
+            <h1 class="hidden">Help</h1>
+
+            <div class="shortcuts">
+                <h2>Keyboard Shortcuts</h2>
+
+                <dl>
+                    <dt>?</dt>
+                    <dd>Show this help dialog</dd>
+                    <dt>S</dt>
+                    <dd>Focus the search field</dd>
+                    <dt>&larrb;</dt>
+                    <dd>Move up in search results</dd>
+                    <dt>&rarrb;</dt>
+                    <dd>Move down in search results</dd>
+                    <dt>&#9166;</dt>
+                    <dd>Go to active search result</dd>
+                    <dt>+</dt>
+                    <dd>Collapse/expand all sections</dd>
+                </dl>
+            </div>
+
+            <div class="infos">
+                <h2>Search Tricks</h2>
+
+                <p>
+                    Prefix searches with a type followed by a colon (e.g.
+                    <code>fn:</code>) to restrict the search to a given type.
+                </p>
+
+                <p>
+                    Accepted types are: <code>fn</code>, <code>mod</code>,
+                    <code>struct</code>, <code>enum</code>,
+                    <code>trait</code>, <code>type</code>, <code>macro</code>,
+                    and <code>const</code>.
+                </p>
+
+                <p>
+                    Search functions by type signature (e.g.
+                    <code>vec -> usize</code> or <code>* -> vec</code>)
+                </p>
+            </div>
+        </div>
+    </aside>
+
+    
+
+    <script>
+        window.rootPath = "../";
+        window.currentCrate = "cv";
+    </script>
+    <script src="../main.js"></script>
+    <script defer src="../search-index.js"></script>
+</body>
+</html>
