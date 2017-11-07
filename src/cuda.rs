@@ -1,9 +1,9 @@
 //! Bindings to OpenCV's classes and functions that exploits GPU/Cuda. See
 //! [cv::cuda](http://docs.opencv.org/3.1.0/d1/d1a/namespacecv_1_1cuda.html)
 
-use libc::{size_t, c_int, c_double};
+use libc::{c_double, c_int, size_t};
 use super::core::*;
-use super::objdetect::{SvmDetector, CSvmDetector, ObjectDetect, HogParams};
+use super::objdetect::{CSvmDetector, HogParams, ObjectDetect, SvmDetector};
 
 /// Opaque data struct for C/C++ cv::cuda::GpuMat bindings
 #[derive(Clone, Copy, Debug)]
@@ -99,16 +99,22 @@ pub struct GpuHog {
 
 extern "C" {
     fn cv_gpu_hog_default() -> *mut CGpuHog;
-    fn cv_gpu_hog_new(win_size: Size2i,
-                      block_size: Size2i,
-                      block_stride: Size2i,
-                      cell_size: Size2i,
-                      nbins: i32)
-                      -> *mut CGpuHog;
+    fn cv_gpu_hog_new(
+        win_size: Size2i,
+        block_size: Size2i,
+        block_stride: Size2i,
+        cell_size: Size2i,
+        nbins: i32,
+    ) -> *mut CGpuHog;
     fn cv_gpu_hog_drop(hog: *mut CGpuHog);
     fn cv_gpu_hog_set_detector(hog: *mut CGpuHog, d: *const CSvmDetector);
     fn cv_gpu_hog_detect(hog: *mut CGpuHog, mat: *mut CGpuMat, found: *mut CVecOfRect);
-    fn cv_gpu_hog_detect_with_conf(hog: *mut CGpuHog, mat: *mut CGpuMat, found: *mut CVecOfRect, conf: *mut CVecDouble);
+    fn cv_gpu_hog_detect_with_conf(
+        hog: *mut CGpuHog,
+        mat: *mut CGpuMat,
+        found: *mut CVecOfRect,
+        conf: *mut CVecDouble,
+    );
 
     fn cv_gpu_hog_set_gamma_correction(hog: *mut CGpuHog, gamma: bool);
     fn cv_gpu_hog_set_group_threshold(hog: *mut CGpuHog, group_threshold: c_int);
@@ -156,12 +162,13 @@ impl Default for GpuHog {
 
 impl GpuHog {
     /// Creates a new GpuHog detector.
-    pub fn new(win_size: Size2i,
-               block_size: Size2i,
-               block_stride: Size2i,
-               cell_size: Size2i,
-               nbins: i32)
-               -> GpuHog {
+    pub fn new(
+        win_size: Size2i,
+        block_size: Size2i,
+        block_stride: Size2i,
+        cell_size: Size2i,
+        nbins: i32,
+    ) -> GpuHog {
         let inner = unsafe { cv_gpu_hog_new(win_size, block_size, block_stride, cell_size, nbins) };
         let mut params = HogParams::default();
         GpuHog::update_params(inner, &mut params);
@@ -180,11 +187,13 @@ impl GpuHog {
     /// Creates a new GpuHog detector with parameters specified inside `params`.
     pub fn with_params(params: HogParams) -> GpuHog {
         let inner = unsafe {
-            cv_gpu_hog_new(params.win_size,
-                           params.block_size,
-                           params.block_stride,
-                           params.cell_size,
-                           params.nbins)
+            cv_gpu_hog_new(
+                params.win_size,
+                params.block_size,
+                params.block_stride,
+                params.cell_size,
+                params.nbins,
+            )
         };
         unsafe {
             cv_gpu_hog_set_gamma_correction(inner, params.gamma_correction);
@@ -227,7 +236,11 @@ impl GpuHog {
         unsafe {
             cv_gpu_hog_detect(self.inner, mat.inner, &mut found);
         }
-        found.rustify().into_iter().map(|r| (r, 0f64)).collect::<Vec<_>>()
+        found
+            .rustify()
+            .into_iter()
+            .map(|r| (r, 0f64))
+            .collect::<Vec<_>>()
     }
 
     /// Detects and returns the results with confidence (scores)
@@ -236,7 +249,11 @@ impl GpuHog {
         let mut conf = CVecDouble::default();
         unsafe { cv_gpu_hog_detect_with_conf(self.inner, mat.inner, &mut found, &mut conf) }
 
-        found.rustify().into_iter().zip(conf.rustify().into_iter()).collect::<Vec<_>>()
+        found
+            .rustify()
+            .into_iter()
+            .zip(conf.rustify().into_iter())
+            .collect::<Vec<_>>()
     }
 }
 
