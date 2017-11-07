@@ -1,6 +1,6 @@
 extern crate cv;
 use cv::*;
-use cv::highgui::*;
+use cv::highgui::{MouseEventType, MouseCallbackData, WindowFlags};
 use cv::imgproc::*;
 use cv::video::tracking::*;
 use cv::videoio::*;
@@ -44,8 +44,8 @@ fn main() {
     let cap = VideoCapture::new(0);
     assert!(cap.is_open());
 
-    highgui_named_window("Window", WindowFlags::WINDOW_AUTOSIZE);
-    highgui_set_mouse_callback("Window", on_mouse, ss_ptr as MouseCallbackData);
+    highgui::create_named_window("Window", WindowFlags::WINDOW_AUTOSIZE);
+    highgui::set_mouse_callback("Window", on_mouse, ss_ptr as MouseCallbackData);
 
     let mut is_tracking = false;
 

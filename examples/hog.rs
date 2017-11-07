@@ -2,7 +2,7 @@ extern crate cv;
 extern crate getopts;
 
 use cv::*;
-use cv::highgui::*;
+use cv::highgui;
 use cv::imgcodecs::*;
 use cv::objdetect::*;
 
@@ -51,7 +51,7 @@ fn run() -> Result<()> {
         .expect("You need to provide the directory");
 
     if show {
-        highgui_named_window("window", WindowFlags::WINDOW_AUTOSIZE);
+        highgui::create_named_window("window", highgui::WindowFlags::WINDOW_AUTOSIZE);
     }
 
     let mut param = HogParams::default();

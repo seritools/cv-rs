@@ -3,7 +3,6 @@ extern crate libc;
 use libc::{c_char, c_int, c_void};
 use std::ffi::CString;
 use std::mem;
-use std::ptr;
 
 extern "C" {
     fn cv_named_window(name: *const c_char, flags: c_int);
@@ -19,7 +18,7 @@ extern "C" {
 /// Creates a window that can be used as a placeholder for images and
 /// trackbars. All created windows are referred to by their names. If a window
 /// with the same name already exists, the function does nothing.
-pub fn highgui_named_window(name: &str, flags: WindowFlags) {
+pub fn create_named_window(name: &str, flags: WindowFlags) {
     let s = CString::new(name).unwrap();
     unsafe {
         cv_named_window((&s).as_ptr(), flags.bits());
@@ -27,7 +26,7 @@ pub fn highgui_named_window(name: &str, flags: WindowFlags) {
 }
 
 /// Destroys the specified window with the given name.
-pub fn highgui_destroy_window(name: &str) {
+pub fn destroy_window(name: &str) {
     let s = CString::new(name).unwrap();
     unsafe {
         cv_destroy_window((&s).as_ptr());
@@ -38,22 +37,30 @@ pub fn highgui_destroy_window(name: &str) {
 pub type MouseCallbackData = *mut c_void;
 
 /// Callback function for mouse events, primarily used in
-/// [highgui_set_mouse_callback](fn.highgui_set_mouse_callback.html)
+/// [set_mouse_callback](fn.set_mouse_callback.html)
 pub type MouseCallback = fn(i32, i32, i32, i32, MouseCallbackData);
 
-/// Set mouse handler for the specified window (identified by name). A callback
+/// Sets mouse handler for the specified window (identified by name). A callback
 /// handler should be provided and optional user_data can be passed around.
-pub fn highgui_set_mouse_callback(name: &str, on_mouse: MouseCallback, user_data: *mut c_void) {
+pub fn set_mouse_callback(name: &str, on_mouse: MouseCallback, user_data: *mut c_void) {
+    // TODO: make `data` generic and nonmutable, so that the callback data is rust-valid for
+    // multiple calls
     struct CallbackWrapper {
         cb: Box<MouseCallback>,
         data: *mut c_void,
     }
 
     extern "C" fn _mouse_callback(e: i32, x: i32, y: i32, f: i32, ud: *mut c_void) {
-        let cb_wrapper = unsafe { ptr::read(ud as *mut CallbackWrapper) };
+        // TODO: rustify mouse callback (allow it to safely be free'd after the mouse callback was
+        // removed (lowlevel: via cv_set_mouse_callback(_, NULL, NULL).
+        // highgui windows may need a wrapping struct to support that.
+
+        let cb_wrapper = unsafe { Box::from_raw(ud as *mut CallbackWrapper) };
         let true_callback = *(cb_wrapper.cb);
         true_callback(e, x, y, f, cb_wrapper.data);
-        mem::forget(cb_wrapper.cb);
+
+        // leak the callback for now to let opencv use it for multiple callbacks
+        mem::forget(cb_wrapper);
     }
 
     let box_wrapper: Box<CallbackWrapper> = Box::new(CallbackWrapper {
@@ -69,7 +76,7 @@ pub fn highgui_set_mouse_callback(name: &str, on_mouse: MouseCallback, user_data
 }
 
 bitflags!{
-    /// Flags for [highgui_named_window](fn.highgui_named_window.html)
+    /// Flags for [named_window](fn.named_window.html)
     /// specifying the behavior of the window.
     pub struct WindowFlags: i32 {
         /// The user can resize the window (no constraint).
