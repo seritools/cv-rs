@@ -16,7 +16,7 @@ fn opencv_link() {
         println!("cargo:rustc-link-search=native={}", dir);
         println!("cargo:rustc-link-lib=opencv_world320");
     } else {
-        eprint!("%OPENCV_DIR% is not set properly.");
+        eprint!("%OPENCV_LIB% is not set properly.");
         std::process::exit(0x0100);
     }
 }
