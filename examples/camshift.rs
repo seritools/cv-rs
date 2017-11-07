@@ -11,15 +11,15 @@ struct SelectionStatus {
 }
 
 fn on_mouse(e: i32, x: i32, y: i32, _: i32, data: MouseCallbackData) {
-    let event: MouseEventTypes = unsafe { std::mem::transmute(e as u8) };
+    let event: MouseEventType = unsafe { std::mem::transmute(e) };
     match event {
-        MouseEventTypes::LButtonDown => {
+        MouseEventType::LButtonDown => {
             let ss = data as *mut SelectionStatus;
             let mut selection = unsafe { &mut (*ss).selection };
             selection.x = x;
             selection.y = y;
         }
-        MouseEventTypes::LButtonUp => {
+        MouseEventType::LButtonUp => {
             let ss = data as *mut SelectionStatus;
             let mut selection = unsafe { &mut (*ss).selection };
             let mut status = unsafe { &mut (*ss).status };
@@ -44,7 +44,7 @@ fn main() {
     let cap = VideoCapture::new(0);
     assert!(cap.is_open());
 
-    highgui_named_window("Window", WindowFlags::WindowAutosize);
+    highgui_named_window("Window", WindowFlags::WINDOW_AUTOSIZE);
     highgui_set_mouse_callback("Window", on_mouse, ss_ptr as MouseCallbackData);
 
     let mut is_tracking = false;

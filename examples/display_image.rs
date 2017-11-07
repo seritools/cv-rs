@@ -19,6 +19,6 @@ fn main() {
         std::process::exit(-1);
     }
 
-    highgui_named_window("Display window", WindowFlags::WindowNormal);
+    highgui_named_window("Display window", WindowFlags::WINDOW_NORMAL);
     mat.show("Display window", 0).unwrap();
 }

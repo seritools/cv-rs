@@ -16,17 +16,17 @@ extern "C" {
 }
 
 
-/// Create a window that can be used as a placeholder for images and
+/// Creates a window that can be used as a placeholder for images and
 /// trackbars. All created windows are referred to by their names. If a window
 /// with the same name already exists, the function does nothing.
 pub fn highgui_named_window(name: &str, flags: WindowFlags) {
     let s = CString::new(name).unwrap();
     unsafe {
-        cv_named_window((&s).as_ptr(), flags as i32);
+        cv_named_window((&s).as_ptr(), flags.bits());
     }
 }
 
-/// Destroy the specified window with the given name.
+/// Destroys the specified window with the given name.
 pub fn highgui_destroy_window(name: &str) {
     let s = CString::new(name).unwrap();
     unsafe {
@@ -68,25 +68,36 @@ pub fn highgui_set_mouse_callback(name: &str, on_mouse: MouseCallback, user_data
     }
 }
 
-
-/// Flags for [highgui_named_window](fn.highgui_named_window.html). This only
-/// supports a subset of all cv::WindowFlags because C/C++ allows enum with the
-/// same value but Rust is stricter.
-#[derive(Clone, Copy, Debug)]
-pub enum WindowFlags {
-    /// the window can be resized (no constraint) or switched to fullscreen.
-    WindowNormal = 0x00000000,
-    /// the window is constrained by the image displayed.
-    WindowAutosize = 0x00000001,
-    /// the window is with opengl support.
-    WindowOpengl = 0x00001000,
-    /// the window can be resized arbitrarily (no ratio constraint).
-    WindowFreeRatio = 0x00000100,
+bitflags!{
+    /// Flags for [highgui_named_window](fn.highgui_named_window.html)
+    /// specifying the behavior of the window.
+    pub struct WindowFlags: i32 {
+        /// The user can resize the window (no constraint).
+        /// Use also to switch a fullscreen window to a normal size.
+        const WINDOW_NORMAL = 0x00000000;
+        /// The user cannot resize the window, the size is constrainted by the image displayed.
+        const WINDOW_AUTOSIZE = 0x00000001;
+        /// Window with opengl support.
+        const WINDOW_OPENGL = 0x00001000;
+        /// Change the window to fullscreen.
+        const WINDOW_FULLSCREEN = 0x00000001;
+        /// The image expands as much as it can (no ratio constraint).
+        const WINDOW_FREERATIO = 0x00000100;
+        /// The ratio of the image is respected.
+        const WINDOW_KEEPRATIO = 0x00000000;
+        /// Show status bar and tool bar (if supported).
+        /// **Note:** Only supported by the Qt window backend.
+        const WINDOW_GUI_EXPANDED = 0x00000000;
+        /// Old-fashioned way – no status bar, no tool bar.
+        /// **Note:** Only supported by the Qt window backend.
+        const WINDOW_GUI_NORMAL = 0x00000010;
+    }
 }
 
-/// Mouse Events
+/// Mouse events
+#[repr(i32)] // i32 to align it to the respective callback parameter
 #[derive(Clone, Copy, Debug)]
-pub enum MouseEventTypes {
+pub enum MouseEventType {
     /// Indicates that the mouse has moved over the window.
     MouseMove = 0,
     /// Indicates that the left mouse button is pressed.
@@ -102,13 +113,13 @@ pub enum MouseEventTypes {
     /// Indicates that middle mouse button is released.
     MButtonUp = 6,
     /// Indicates that left mouse button is double clicked.
-    LButtonClick = 7,
+    LButtonDblClick = 7,
     /// Indicates that right mouse button is double clicked.
-    RButtonClick = 8,
+    RButtonDblClick = 8,
     /// Indicates that middle mouse button is double clicked.
-    MButtonClick = 9,
-    /// Positive/negative means forward/backward scrolling.
+    MButtonDblClick = 9,
+    /// Positive and negative values mean forward and backward scrolling, respectively.
     MouseWheel = 10,
-    /// Positive/negative means right and left scrolling.
+    /// Positive and negative values mean right and left scrolling, respectively.
     MouseHWheel = 11,
 }
