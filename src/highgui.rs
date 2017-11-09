@@ -2,18 +2,17 @@
 extern crate libc;
 use libc::{c_char, c_int, c_void};
 use std::ffi::CString;
-use std::mem;
+use std::{mem, ptr};
 
 extern "C" {
     fn cv_named_window(name: *const c_char, flags: c_int);
     fn cv_destroy_window(name: *const c_char);
     fn cv_set_mouse_callback(
         name: *const c_char,
-        on_mouse: extern "C" fn(e: i32, x: i32, y: i32, f: i32, data: *mut c_void),
+        on_mouse: Option<extern "C" fn(e: i32, x: i32, y: i32, f: i32, data: *mut c_void)>,
         userdata: *mut c_void,
     );
 }
-
 
 /// Creates a window that can be used as a placeholder for images and
 /// trackbars. All created windows are referred to by their names. If a window
@@ -33,45 +32,75 @@ pub fn destroy_window(name: &str) {
     }
 }
 
-/// Pointer referring to the data used in MouseCallback
-pub type MouseCallbackData = *mut c_void;
-
 /// Callback function for mouse events, primarily used in
-/// [set_mouse_callback](fn.set_mouse_callback.html)
-pub type MouseCallback = fn(i32, i32, i32, i32, MouseCallbackData);
+/// [set_mouse_callback](fn.set_mouse_callback.html).
+pub type MouseCallback<T> = fn(i32, i32, i32, i32, &T);
 
-/// Sets mouse handler for the specified window (identified by name). A callback
-/// handler should be provided and optional user_data can be passed around.
-pub fn set_mouse_callback(name: &str, on_mouse: MouseCallback, user_data: *mut c_void) {
-    // TODO: make `data` generic and nonmutable, so that the callback data is rust-valid for
-    // multiple calls
-    struct CallbackWrapper {
-        cb: Box<MouseCallback>,
-        data: *mut c_void,
+/// Represents a handle to the mouse callback and its data.
+///
+/// Dropping this handle also detaches the callback from the window. Use std::mem::forget to
+/// deliberately leak it.
+#[derive(Debug)]
+pub struct MouseCallbackHandle<T: Sync + Send> {
+    wrapper: *mut MouseCallbackWrapper<T>,
+    name: CString,
+}
+
+impl<T: Sync + Send> Drop for MouseCallbackHandle<T> where {
+    fn drop(&mut self) {
+        unsafe {
+            // set the new callback to NULL
+            // if the window does not exist anymore, this does nothing
+            cv_set_mouse_callback((&self.name).as_ptr(), None, ptr::null_mut());
+            Box::from_raw(self.wrapper)
+        };
     }
+}
 
-    extern "C" fn _mouse_callback(e: i32, x: i32, y: i32, f: i32, ud: *mut c_void) {
-        // TODO: rustify mouse callback (allow it to safely be free'd after the mouse callback was
-        // removed (lowlevel: via cv_set_mouse_callback(_, NULL, NULL).
-        // highgui windows may need a wrapping struct to support that.
-
-        let cb_wrapper = unsafe { Box::from_raw(ud as *mut CallbackWrapper) };
-        let true_callback = *(cb_wrapper.cb);
-        true_callback(e, x, y, f, cb_wrapper.data);
-
-        // leak the callback for now to let opencv use it for multiple callbacks
-        mem::forget(cb_wrapper);
-    }
-
-    let box_wrapper: Box<CallbackWrapper> = Box::new(CallbackWrapper {
-        cb: Box::new(on_mouse),
-        data: user_data,
+/// Sets the mouse callback for the specified window (identified by name).
+///
+/// Since the callback is called from another thread, the type specified for data must implement
+/// Sync and Send. The returned MouseCallbackHandle manages the lifetime of supplied data.
+pub fn set_mouse_callback<T: Sync + Send>(
+    name: &str,
+    callback: MouseCallback<T>,
+    data: T,
+) -> MouseCallbackHandle<T> {
+    let boxed_wrapper = Box::new(MouseCallbackWrapper::<T> {
+        callback: Box::new(callback),
+        data,
     });
-    let box_wrapper_raw = Box::into_raw(box_wrapper) as *mut c_void;
+    let boxed_wrapper_raw = Box::into_raw(boxed_wrapper);
 
     let s = CString::new(name).unwrap();
     unsafe {
-        cv_set_mouse_callback((&s).as_ptr(), _mouse_callback, box_wrapper_raw);
+        cv_set_mouse_callback(
+            (&s).as_ptr(),
+            Some(MouseCallbackWrapper::<T>::extern_mouse_callback),
+            boxed_wrapper_raw as *mut c_void,
+        );
+    }
+
+    MouseCallbackHandle {
+        wrapper: boxed_wrapper_raw,
+        name: s,
+    }
+}
+
+struct MouseCallbackWrapper<T: Sync + Send> {
+    callback: Box<MouseCallback<T>>,
+    data: T,
+}
+
+impl<T: Sync + Send> MouseCallbackWrapper<T> {
+    extern "C" fn extern_mouse_callback(e: i32, x: i32, y: i32, f: i32, ud: *mut c_void) {
+        let wrapper = unsafe { Box::from_raw(ud as *mut Self) };
+        let true_callback = *(wrapper.callback);
+        true_callback(e, x, y, f, &wrapper.data);
+
+        // leak the callback here to let opencv use it for multiple callbacks.
+        // its lifetime is managed by the corresponding MouseCallbackHandle
+        mem::forget(wrapper);
     }
 }
 

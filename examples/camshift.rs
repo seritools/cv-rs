@@ -1,33 +1,37 @@
+use std::sync::{Arc, Mutex};
+
 extern crate cv;
+
 use cv::*;
-use cv::highgui::{MouseEventType, MouseCallbackData, WindowFlags};
+use cv::highgui;
+use cv::highgui::{MouseEventType, WindowFlags};
 use cv::imgproc::*;
 use cv::video::tracking::*;
 use cv::videoio::*;
 
+#[derive(Copy, Clone)]
 struct SelectionStatus {
     selection: Rect,
     status: bool,
 }
 
-fn on_mouse(e: i32, x: i32, y: i32, _: i32, data: MouseCallbackData) {
+fn on_mouse(e: i32, x: i32, y: i32, _: i32, data: &Arc<Mutex<SelectionStatus>>) {
     let event: MouseEventType = unsafe { std::mem::transmute(e) };
+
+
     match event {
         MouseEventType::LButtonDown => {
-            let ss = data as *mut SelectionStatus;
-            let mut selection = unsafe { &mut (*ss).selection };
-            selection.x = x;
-            selection.y = y;
+            let mut selection_status = data.lock().unwrap();
+            selection_status.selection.x = x;
+            selection_status.selection.y = y;
         }
         MouseEventType::LButtonUp => {
-            let ss = data as *mut SelectionStatus;
-            let mut selection = unsafe { &mut (*ss).selection };
-            let mut status = unsafe { &mut (*ss).status };
-            selection.width = x - selection.x;
-            selection.height = y - selection.y;
+            let mut selection_status = data.lock().unwrap();
+            selection_status.selection.width = x - selection_status.selection.x;
+            selection_status.selection.height = y - selection_status.selection.y;
 
-            if selection.width > 0 && selection.height > 0 {
-                *status = true;
+            if selection_status.selection.width > 0 && selection_status.selection.height > 0 {
+                selection_status.status = true;
             }
         }
         _ => {}
@@ -35,17 +39,17 @@ fn on_mouse(e: i32, x: i32, y: i32, _: i32, data: MouseCallbackData) {
 }
 
 fn main() {
-    let mut selection_status = SelectionStatus {
+    let selection_status = Arc::new(Mutex::new(SelectionStatus {
         selection: Rect::default(),
         status: false,
-    };
-    let ss_ptr = &mut selection_status as *mut SelectionStatus;
+    }));
 
     let cap = VideoCapture::new(0);
     assert!(cap.is_open());
 
     highgui::create_named_window("Window", WindowFlags::WINDOW_AUTOSIZE);
-    highgui::set_mouse_callback("Window", on_mouse, ss_ptr as MouseCallbackData);
+
+    let callback_handle = highgui::set_mouse_callback("Window", on_mouse, selection_status.clone());
 
     let mut is_tracking = false;
 
@@ -64,26 +68,31 @@ fn main() {
         let hue = hsv.mix_channels(1, 1, &ch[0] as *const i32, 1);
         let mask = hsv.in_range(Scalar::new(0, 30, 10, 0), Scalar::new(180, 256, 256, 0));
 
-        if selection_status.status {
-            println!("Initialize tracking, setting up CAMShift search");
-            let selection = selection_status.selection;
-            let roi = hue.roi(selection);
-            let maskroi = mask.roi(selection);
+        {
+            let mut current = selection_status.lock().unwrap();
 
-            let raw_hist = roi.calc_hist(
-                std::ptr::null(),
-                maskroi,
-                1,
-                &hsize,
-                &phranges[0] as *const *const f32,
-            );
-            hist = raw_hist.normalize(0.0, 255.0, NormTypes::NormMinMax);
+            if current.status {
+                println!("Initialize tracking, setting up CAMShift search");
+                let selection = current.selection;
+                let roi = hue.roi(selection);
+                let maskroi = mask.roi(selection);
 
-            track_window = selection;
-            m.rectangle(selection);
-            selection_status.status = false;
-            is_tracking = true;
+                let raw_hist = roi.calc_hist(
+                    std::ptr::null(),
+                    maskroi,
+                    1,
+                    &hsize,
+                    &phranges[0] as *const *const f32,
+                );
+                hist = raw_hist.normalize(0.0, 255.0, NormTypes::NormMinMax);
+
+                track_window = selection;
+                m.rectangle(selection);
+                current.status = false;
+                is_tracking = true;
+            }
         }
+
 
         if is_tracking {
             let mut back_project =
@@ -97,4 +106,7 @@ fn main() {
 
         m.show("Window", 30).unwrap();
     }
+
+    // remove the mouse callback from the window
+    std::mem::drop(callback_handle);
 }
