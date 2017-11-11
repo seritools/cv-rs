@@ -1,5 +1,6 @@
 //! highgui: high-level GUI
 extern crate libc;
+
 use libc::{c_char, c_int, c_void};
 use std::ffi::CString;
 use std::{mem, ptr};
@@ -34,7 +35,13 @@ pub fn destroy_window(name: &str) {
 
 /// Callback function for mouse events, primarily used in
 /// [set_mouse_callback](fn.set_mouse_callback.html).
-pub type MouseCallback<T> = fn(i32, i32, i32, i32, &T);
+pub type MouseCallback<T> = fn(
+    event_type: MouseEventType,
+    x_pos: i32,
+    y_pos: i32,
+    event_flags: MouseEventFlags,
+    user_data: &T,
+);
 
 /// Represents a handle to the mouse callback and its data.
 ///
@@ -64,11 +71,11 @@ impl<T: Sync + Send> Drop for MouseCallbackHandle<T> where {
 pub fn set_mouse_callback<T: Sync + Send>(
     name: &str,
     callback: MouseCallback<T>,
-    data: T,
+    user_data: T,
 ) -> MouseCallbackHandle<T> {
     let boxed_wrapper = Box::new(MouseCallbackWrapper::<T> {
         callback: Box::new(callback),
-        data,
+        user_data,
     });
     let boxed_wrapper_raw = Box::into_raw(boxed_wrapper);
 
@@ -89,14 +96,24 @@ pub fn set_mouse_callback<T: Sync + Send>(
 
 struct MouseCallbackWrapper<T: Sync + Send> {
     callback: Box<MouseCallback<T>>,
-    data: T,
+    user_data: T,
 }
 
 impl<T: Sync + Send> MouseCallbackWrapper<T> {
-    extern "C" fn extern_mouse_callback(e: i32, x: i32, y: i32, f: i32, ud: *mut c_void) {
-        let wrapper = unsafe { Box::from_raw(ud as *mut Self) };
-        let true_callback = *(wrapper.callback);
-        true_callback(e, x, y, f, &wrapper.data);
+    extern "C" fn extern_mouse_callback(
+        event_type: i32,
+        x_pos: i32,
+        y_pos: i32,
+        event_flags: i32,
+        user_data: *mut c_void,
+    ) {
+        let wrapper = unsafe { Box::from_raw(user_data as *mut Self) };
+        let true_callback: MouseCallback<T> = *(wrapper.callback);
+
+        let event = unsafe { mem::transmute(event_type) };
+        let flags = MouseEventFlags::from_bits_truncate(event_flags);
+
+        true_callback(event, x_pos, y_pos, flags, &wrapper.user_data);
 
         // leak the callback here to let opencv use it for multiple callbacks.
         // its lifetime is managed by the corresponding MouseCallbackHandle
@@ -104,7 +121,7 @@ impl<T: Sync + Send> MouseCallbackWrapper<T> {
     }
 }
 
-bitflags!{
+bitflags! {
     /// Flags for [named_window](fn.named_window.html)
     /// specifying the behavior of the window.
     pub struct WindowFlags: i32 {
@@ -127,6 +144,24 @@ bitflags!{
         /// Old-fashioned way – no status bar, no tool bar.
         /// **Note:** Only supported by the Qt window backend.
         const WINDOW_GUI_NORMAL = 0x00000010;
+    }
+}
+
+bitflags! {
+    /// Mouse event flags returned in the MouseCallback.
+    pub struct MouseEventFlags: i32 {
+        /// Indicates that the left mouse button is down.
+        const CV_EVENT_FLAG_LBUTTON = 1;
+        /// Indicates that the right mouse button is down.
+        const CV_EVENT_FLAG_RBUTTON = 2;
+        /// Indicates that the middle mouse button is down.
+        const CV_EVENT_FLAG_MBUTTON = 4;
+        /// Indicates that the CTRL key is pressed.
+        const CV_EVENT_FLAG_CTRLKEY = 8;
+        /// Indicates that the SHIFT key is pressed.
+        const CV_EVENT_FLAG_SHIFTKEY = 16;
+        /// Indicates that the ALT key is pressed.
+        const CV_EVENT_FLAG_ALTKEY = 32;
     }
 }
 

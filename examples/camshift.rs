@@ -4,7 +4,7 @@ extern crate cv;
 
 use cv::*;
 use cv::highgui;
-use cv::highgui::{MouseEventType, WindowFlags};
+use cv::highgui::{MouseEventFlags, MouseEventType, WindowFlags};
 use cv::imgproc::*;
 use cv::video::tracking::*;
 use cv::videoio::*;
@@ -15,10 +15,13 @@ struct SelectionStatus {
     status: bool,
 }
 
-fn on_mouse(e: i32, x: i32, y: i32, _: i32, data: &Arc<Mutex<SelectionStatus>>) {
-    let event: MouseEventType = unsafe { std::mem::transmute(e) };
-
-
+fn on_mouse(
+    event: MouseEventType,
+    x: i32,
+    y: i32,
+    _: MouseEventFlags,
+    data: &Arc<Mutex<SelectionStatus>>,
+) {
     match event {
         MouseEventType::LButtonDown => {
             let mut selection_status = data.lock().unwrap();
