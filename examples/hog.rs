@@ -2,7 +2,7 @@ extern crate cv;
 extern crate getopts;
 
 use cv::*;
-use cv::highgui;
+use cv::highgui::*;
 use cv::imgcodecs::*;
 use cv::objdetect::*;
 
@@ -51,7 +51,7 @@ fn run() -> Result<()> {
         .expect("You need to provide the directory");
 
     if show {
-        highgui::create_named_window("window", highgui::WindowFlags::WINDOW_AUTOSIZE);
+        create_named_window("window", WindowFlags::WINDOW_AUTOSIZE);
     }
 
     let mut param = HogParams::default();
@@ -101,7 +101,9 @@ fn run_detect_for_image<P: AsRef<Path>, OD: ObjectDetect>(
             .iter()
             .map(|&(r, _w)| mat.rectangle(r.scale(0.6)))
             .count();
-        mat.show("window", 0).unwrap();
+
+        show_mat("window", &mat);
+        wait_key(Delay::Forever);
     }
 }
 

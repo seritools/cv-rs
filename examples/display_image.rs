@@ -2,6 +2,7 @@
 // http://docs.opencv.org/3.1.0/db/deb/tutorial_display_image.html
 extern crate cv;
 use cv::*;
+use cv::highgui::*;
 use cv::imgcodecs::ImreadModes;
 
 fn main() {
@@ -18,6 +19,7 @@ fn main() {
         std::process::exit(-1);
     }
 
-    highgui::create_named_window("Display window", highgui::WindowFlags::WINDOW_NORMAL);
-    mat.show("Display window", 0).unwrap();
+    create_named_window("Display window", WindowFlags::WINDOW_NORMAL);
+    show_mat("Display window", &mat);
+    wait_key(Delay::Forever);
 }

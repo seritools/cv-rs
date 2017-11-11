@@ -1,7 +1,7 @@
 extern crate cv;
 
 use cv::*;
-use cv::highgui;
+use cv::highgui::*;
 use cv::imgcodecs::*;
 use cv::objdetect::CascadeClassifier;
 use std::fs::File;
@@ -20,7 +20,7 @@ fn main() {
     d.push("assets/haarcascade_frontalface_default.xml");
     let cascade = CascadeClassifier::from_path(d).unwrap();
 
-    highgui::create_named_window("window", highgui::WindowFlags::WINDOW_NORMAL);
+    create_named_window("window", WindowFlags::WINDOW_NORMAL);
 
     // result is a vector of rectangles
     let result = cascade.detect_with_params(&mat, 1.1, 15, Size2i::new(80, 80), Size2i::default());
@@ -38,5 +38,7 @@ fn main() {
             )
         })
         .count();
-    mat.show("window", 0).unwrap();
+
+    show_mat("window", &mat);
+    wait_key(Delay::Forever);
 }

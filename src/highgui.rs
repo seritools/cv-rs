@@ -5,6 +5,9 @@ use libc::{c_char, c_int, c_void};
 use std::ffi::CString;
 use std::{mem, ptr};
 
+use core::CMat;
+use Mat;
+
 extern "C" {
     fn cv_named_window(name: *const c_char, flags: c_int);
     fn cv_destroy_window(name: *const c_char);
@@ -13,6 +16,8 @@ extern "C" {
         on_mouse: Option<extern "C" fn(e: i32, x: i32, y: i32, f: i32, data: *mut c_void)>,
         userdata: *mut c_void,
     );
+    fn cv_imshow(name: *const c_char, cmat: *mut CMat);
+    fn cv_wait_key(delay_ms: c_int) -> c_int;
 }
 
 /// Creates a window that can be used as a placeholder for images and
@@ -30,6 +35,59 @@ pub fn destroy_window(name: &str) {
     let s = CString::new(name).unwrap();
     unsafe {
         cv_destroy_window((&s).as_ptr());
+    }
+}
+
+/// Displays the specified image in the window.
+pub fn show_mat(name: &str, mat: &Mat) {
+    let s = CString::new(name).unwrap();
+    unsafe {
+        cv_imshow((&s).as_ptr(), mat.inner);
+    }
+}
+
+/// Waits for a pressed key.
+///
+/// The function waits for a key event infinitely in the case of `Delay::Forever` or
+/// `Delay::Msec(msec <= 0)`, or for `msec` milliseconds otherwise. Since the OS has
+/// a minimum time between switching threads, the function will not wait exactly `msec` ms, it will
+/// wait at least `msec` ms, depending on what else is running on your computer at that time. It
+/// returns the code of the pressed key or `None` if no key was pressed before the specified time had
+/// elapsed.
+///
+/// **Note:** This function is the only method in HighGUI that can fetch and handle events, so it
+/// needs to be called periodically for normal event processing unless HighGUI is used within an
+/// environment that takes care of event processing.
+///
+/// **Note:** The function only works if there is at least one HighGUI window created and the window
+/// is active. If there are several HighGUI windows, any of them can be active.
+pub fn wait_key(delay: Delay) -> Option<c_int> {
+    let delay_msec = match delay {
+        Delay::Forever => 0,
+        Delay::Msec(msec) => msec,
+    };
+
+    let result = unsafe { cv_wait_key(delay_msec) };
+
+    if result >= 0 {
+        Some(result)
+    } else {
+        None
+    }
+}
+
+/// The duration wait_key should wait for a key press.
+#[derive(Debug, Copy, Clone)]
+pub enum Delay {
+    /// Wait infinitely.
+    Forever,
+    /// Wait for the specified amount of milliseconds, or infinitely, if the specified value <= 0.
+    Msec(c_int),
+}
+
+impl Default for Delay {
+    fn default() -> Self {
+        Delay::Forever
     }
 }
 

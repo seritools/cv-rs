@@ -24,15 +24,23 @@
 // }
 
 extern crate cv;
-use cv::highgui;
+use cv::highgui::*;
 use cv::videoio::VideoCapture;
 
 fn main() {
     let cap = VideoCapture::new(0);
     assert!(cap.is_open());
 
-    highgui::create_named_window("Window", highgui::WindowFlags::WINDOW_AUTOSIZE);
-    while let Some(image) = cap.read() {
-        image.show("Window", 30).unwrap();
+    create_named_window("Window", WindowFlags::WINDOW_AUTOSIZE);
+
+    loop {
+        let image = if let Some(mat) = cap.read() {
+            mat
+        } else {
+            break;
+        };
+
+        show_mat("Window", &image);
+        wait_key(Delay::Msec(30));
     }
 }

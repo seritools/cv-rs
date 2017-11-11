@@ -3,8 +3,7 @@ use std::sync::{Arc, Mutex};
 extern crate cv;
 
 use cv::*;
-use cv::highgui;
-use cv::highgui::{MouseEventFlags, MouseEventType, WindowFlags};
+use cv::highgui::*;
 use cv::imgproc::*;
 use cv::video::tracking::*;
 use cv::videoio::*;
@@ -50,9 +49,9 @@ fn main() {
     let cap = VideoCapture::new(0);
     assert!(cap.is_open());
 
-    highgui::create_named_window("Window", WindowFlags::WINDOW_AUTOSIZE);
+    create_named_window("Window", WindowFlags::WINDOW_AUTOSIZE);
 
-    let callback_handle = highgui::set_mouse_callback("Window", on_mouse, selection_status.clone());
+    let callback_handle = set_mouse_callback("Window", on_mouse, selection_status.clone());
 
     let mut is_tracking = false;
 
@@ -62,7 +61,12 @@ fn main() {
     let phranges: [*const f32; 1] = [&hranges[0] as *const f32];
     let mut track_window = Rect::default();
 
-    while let Some(mut m) = cap.read() {
+    loop {
+        let mut m = if let Some(mat) = cap.read() {
+            mat
+        } else {
+            break;
+        };
         m.flip(FlipCode::YAxis);
 
         let hsv = m.cvt_color(ColorConversionCodes::BGR2HSV);
@@ -107,7 +111,8 @@ fn main() {
             m.rectangle(track_box.bounding_rect());
         }
 
-        m.show("Window", 30).unwrap();
+        show_mat("Window", &m);
+        wait_key(Delay::Msec(30));
     }
 
     // remove the mouse callback from the window

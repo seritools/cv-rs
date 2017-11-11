@@ -1,7 +1,7 @@
 //! Core data structures in OpenCV
 
 use errors::*;
-use libc::{c_char, c_double, c_int, c_uchar, size_t};
+use libc::{c_double, c_int, c_uchar, size_t};
 use num;
 use std::ffi::CString;
 
@@ -414,22 +414,6 @@ impl Mat {
         unsafe {
             cv_mat_flip(self.inner, code);
         }
-    }
-
-    /// Calls out to highgui to show the image, the duration is specified by
-    /// `delay`.
-    pub fn show(&self, name: &str, delay: i32) -> Result<()> {
-        extern "C" {
-            fn cv_imshow(name: *const c_char, cmat: *mut CMat);
-            fn cv_wait_key(delay_ms: c_int) -> c_int;
-        }
-
-        let s = CString::new(name)?;
-        unsafe {
-            cv_imshow((&s).as_ptr(), self.inner);
-            cv_wait_key(delay);
-        }
-        Ok(())
     }
 
     /// Returns the images type. For supported types, please see
