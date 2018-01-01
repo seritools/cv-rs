@@ -19,9 +19,7 @@ impl Mat {
     /// Creates a `Mat` object from raw `CMat` pointer. This will read the rows
     /// and cols of the image.
     pub(crate) fn from_raw(raw: *mut CMat) -> Mat {
-        Mat {
-            inner: raw,
-        }
+        Mat { inner: raw }
     }
 
     /// Creates an empty `Mat` struct.
@@ -225,7 +223,7 @@ pub enum MatDepth {
     /// `f64`
     Float64 = 6,
     /// Custom, user-defined depth
-    UserDefined = 7
+    UserDefined = 7,
 }
 
 /// Represents a valid mat type.
@@ -246,10 +244,7 @@ impl MatType {
     /// Returns `Ok<MatType>` if the channel count supplied is 511 or less.
     pub fn new(depth: MatDepth, channels: u16) -> Result<Self> {
         if channels < Self::MAX_CHANNELS {
-            Ok(Self {
-                depth,
-                channels
-            })
+            Ok(Self { depth, channels })
         } else {
             Err(ErrorKind::UnsupportedChannelCount(channels, Self::MAX_CHANNELS).into())
         }

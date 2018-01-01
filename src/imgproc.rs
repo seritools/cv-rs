@@ -10,7 +10,6 @@ use super::wrapper::*;
 //  Imgproc
 // =============================================================================
 
-
 /// Color conversion code used in
 /// [cvt_color](../struct.Mat.html#method.cvt_color).
 #[allow(non_camel_case_types, missing_docs)]

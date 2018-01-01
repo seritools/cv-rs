@@ -100,7 +100,6 @@ fn main() {
             }
         }
 
-
         if is_tracking {
             let mut back_project =
                 hue.calc_back_project(std::ptr::null(), &hist, &phranges[0] as *const *const f32);

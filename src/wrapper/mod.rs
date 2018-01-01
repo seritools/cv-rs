@@ -1,5 +1,5 @@
 use libc::{c_char, c_double, c_float, c_int, c_uchar, c_void, size_t, uint8_t};
-use super::core::{Mat, Rect2f, MatType};
+use super::core::{Mat, MatType, Rect2f};
 
 mod core;
 mod functions;
