@@ -29,36 +29,6 @@ impl Mat {
         Mat::from_raw(CMat::new())
     }
 
-    /// Creates a new `Mat` from buffer. Note that internally opencv function
-    /// won't take ownership of the Mat, but when we call `drop`, it will
-    /// deallocate the memory. To prevent double-freeing, you must `mem::forget`
-    /// it after use.
-    ///
-    /// The following example shows how to get the data from an image and create
-    /// a new image with the data (also forgets it).
-    ///
-    /// ```rust,ignore
-    /// let buffer = image.data();
-    /// let size = image.size();
-    /// let s = (size.width * size.height * 3) as usize;
-    ///
-    /// let mut vec = Vec::with_capacity(s);
-    /// unsafe {
-    ///   vec.set_len(s);
-    ///   copy(buffer, vec.as_mut_ptr(), s);
-    /// }
-    /// let new_image = Mat::from_buffer(
-    ///   size.height, size.width, CvType::Cv8UC3 as i32, &vec);
-    ///
-    ///  // . . . use new_image here, such as new_image.show(..) . . .
-    ///
-    /// ::std::mem::forget(new_image);
-    /// ```
-    pub fn from_buffer(rows: i32, cols: i32, cv_type: i32, buf: &Vec<u8>) -> Mat {
-        let raw = unsafe { cv_mat_from_buffer(rows, cols, cv_type, buf.as_ptr()) };
-        Mat::from_raw(raw)
-    }
-
     /// Create an empty `Mat` with specific size (rows, cols and types).
     pub fn with_size(rows: c_int, cols: c_int, mat_type: MatType) -> Self {
         let m = unsafe { cv_mat_new_with_size(rows, cols, mat_type.as_opencv_value()) };

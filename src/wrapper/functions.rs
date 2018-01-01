@@ -5,12 +5,6 @@ extern "C" {
     pub fn cv_mat_new() -> *mut CMat;
     pub fn cv_mat_new_with_size(rows: c_int, cols: c_int, mat_type: c_int) -> *mut CMat;
     pub fn cv_mat_zeros(rows: c_int, cols: c_int, mat_type: c_int) -> *mut CMat;
-    pub fn cv_mat_from_buffer(
-        rows: c_int,
-        cols: c_int,
-        mat_type: c_int,
-        buffer: *const c_uchar,
-    ) -> *mut CMat;
     pub fn cv_mat_is_valid(mat: *mut CMat) -> bool;
     pub fn cv_mat_rows(cmat: *const CMat) -> c_int;
     pub fn cv_mat_cols(cmat: *const CMat) -> c_int;

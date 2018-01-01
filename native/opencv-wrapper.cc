@@ -27,12 +27,6 @@ CvMatrix* cv_mat_zeros(int rows, int cols, int type) {
     return reinterpret_cast<CvMatrix*>(mat);
 }
 
-CvMatrix* cv_mat_from_buffer(int rows, int cols, int type, const uint8_t* buf) {
-    return reinterpret_cast<CvMatrix*>(
-        new cv::Mat(rows, cols, type,
-                    const_cast<void*>(reinterpret_cast<const void*>(buf))));
-}
-
 bool cv_mat_is_valid(CvMatrix* cmat) {
     cv::Mat* mat = reinterpret_cast<cv::Mat*>(cmat);
     return mat->data != nullptr;
