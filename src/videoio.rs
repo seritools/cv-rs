@@ -1,15 +1,14 @@
 //! Media I/O, see [OpenCV
 //! videoio](http://docs.opencv.org/3.1.0/dd/de7/group__videoio.html)
 
-use core::{CMat, Mat, Size2i};
-use libc::{c_char, c_double, c_int};
+use core::Mat;
+use libc::{c_char, c_int};
+
+use super::wrapper::*;
 
 // =============================================================================
 //   VideoCapture
 // =============================================================================
-enum CvVideoCapture {}
-
-unsafe impl Send for CvVideoCapture {}
 
 /// Video capturing from video files, image sequences or cameras.
 #[derive(Debug)]
@@ -18,16 +17,6 @@ pub struct VideoCapture {
 }
 
 unsafe impl Send for VideoCapture {}
-
-extern "C" {
-    fn cv_videocapture_new(index: c_int) -> *mut CvVideoCapture;
-    fn cv_videocapture_from_file(path: *const c_char) -> *mut CvVideoCapture;
-    fn cv_videocapture_is_opened(ccap: *const CvVideoCapture) -> bool;
-    fn cv_videocapture_read(v: *mut CvVideoCapture, m: *mut CMat) -> bool;
-    fn cv_videocapture_drop(cap: *mut CvVideoCapture);
-    fn cv_videocapture_set(cap: *mut CvVideoCapture, property: c_int, value: c_double) -> bool;
-    fn cv_videocapture_get(cap: *mut CvVideoCapture, property: c_int) -> c_double;
-}
 
 #[allow(missing_docs)]
 /// Video capture's property identifier.
@@ -181,9 +170,6 @@ impl Drop for VideoCapture {
 //   VideoWriter
 // =============================================================================
 
-/// Opaque VideoWriter type.
-enum CvVideoWriter {}
-
 /// `VideoWriter` provides easy access to write videos to files.
 /// - On Linux FFMPEG is used to write videos;
 /// - On Windows FFMPEG or VFW is used;
@@ -191,31 +177,6 @@ enum CvVideoWriter {}
 #[derive(Debug)]
 pub struct VideoWriter {
     inner: *mut CvVideoWriter,
-}
-
-extern "C" {
-    fn cv_videowriter_default() -> *mut CvVideoWriter;
-    fn cv_videowriter_new(
-        path: *const c_char,
-        fourcc: c_int,
-        fps: c_double,
-        frame_size: Size2i,
-        is_color: bool,
-    ) -> *mut CvVideoWriter;
-    fn cv_videowriter_drop(w: *mut CvVideoWriter);
-
-    fn cv_videowriter_open(
-        w: *mut CvVideoWriter,
-        path: *const c_char,
-        fourcc: c_int,
-        fps: c_double,
-        frame_size: Size2i,
-        is_color: bool,
-    ) -> bool;
-    fn cv_videowriter_is_opened(w: *mut CvVideoWriter) -> bool;
-    fn cv_videowriter_write(w: *mut CvVideoWriter, m: *mut CMat);
-    fn cv_videowriter_set(w: *mut CvVideoWriter, property: c_int, value: c_double) -> bool;
-    fn cv_videowriter_get(w: *mut CvVideoWriter, property: c_int) -> c_double;
 }
 
 impl VideoWriter {
@@ -327,9 +288,6 @@ pub enum VideoWriterProperty {
 // =============================================================================
 //   Utility functions
 // =============================================================================
-extern "C" {
-    fn cv_fourcc(c1: c_char, c2: c_char, c3: c_char, c4: c_char) -> c_int;
-}
 
 /// Converts from [four character code](https://www.fourcc.org/) to `i32` for
 /// OpenCV.

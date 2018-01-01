@@ -1,24 +1,12 @@
 //! highgui: high-level GUI
 extern crate libc;
 
-use libc::{c_char, c_int, c_void};
+use libc::{c_int, c_void};
 use std::ffi::CString;
 use std::{mem, ptr};
 
-use core::CMat;
-use Mat;
-
-extern "C" {
-    fn cv_named_window(name: *const c_char, flags: c_int);
-    fn cv_destroy_window(name: *const c_char);
-    fn cv_set_mouse_callback(
-        name: *const c_char,
-        on_mouse: Option<extern "C" fn(e: i32, x: i32, y: i32, f: i32, data: *mut c_void)>,
-        userdata: *mut c_void,
-    );
-    fn cv_imshow(name: *const c_char, cmat: *mut CMat);
-    fn cv_wait_key(delay_ms: c_int) -> c_int;
-}
+use super::Mat;
+use super::wrapper::*;
 
 /// Creates a window that can be used as a placeholder for images and
 /// trackbars. All created windows are referred to by their names. If a window
@@ -182,7 +170,7 @@ impl<T: Sync + Send> MouseCallbackWrapper<T> {
 bitflags! {
     /// Flags for [named_window](fn.named_window.html)
     /// specifying the behavior of the window.
-    pub struct WindowFlags: i32 {
+    pub struct WindowFlags: c_int {
         /// The user can resize the window (no constraint).
         /// Use also to switch a fullscreen window to a normal size.
         const WINDOW_NORMAL = 0x00000000;
@@ -207,7 +195,7 @@ bitflags! {
 
 bitflags! {
     /// Mouse event flags returned in the MouseCallback.
-    pub struct MouseEventFlags: i32 {
+    pub struct MouseEventFlags: c_int {
         /// Indicates that the left mouse button is down.
         const CV_EVENT_FLAG_LBUTTON = 1;
         /// Indicates that the right mouse button is down.

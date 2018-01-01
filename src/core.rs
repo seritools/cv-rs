@@ -1,19 +1,9 @@
 //! Core data structures in OpenCV
 
+use libc::c_int;
 use errors::*;
-use libc::{c_double, c_int, c_uchar, size_t};
-use num;
-use std::ffi::CString;
 
-/// Opaque data struct for C bindings
-#[derive(Clone, Copy, Debug)]
-pub enum CMat {}
-unsafe impl Send for CMat {}
-impl CMat {
-    pub fn new() -> *mut CMat {
-        unsafe { cv_mat_new() }
-    }
-}
+use super::wrapper::*;
 
 /// This wraps OpenCV's `Mat` class which is designed for n-dimensional dense
 /// array. It's the most widely used data structure in image/video processing
@@ -21,300 +11,22 @@ impl CMat {
 #[derive(Debug)]
 pub struct Mat {
     /// Pointer to the actual C/C++ data structure
-    pub inner: *mut CMat,
-
-    /// Number of columns
-    pub cols: i32,
-
-    /// Number of rows
-    pub rows: i32,
-
-    /// Depth of this mat (it should be the type).
-    pub depth: i32,
-
-    /// Channels of this mat
-    pub channels: i32,
-}
-
-// TODO(benzh): Should consider Unique<T>,
-// https://github.com/rust-lang/rust/issues/27730
-unsafe impl Send for Mat {}
-
-/// A 4-element struct that is widely used to pass pixel values.
-#[derive(Default, Debug, Clone, Copy)]
-#[repr(C)]
-pub struct Scalar {
-    v0: i32,
-    v1: i32,
-    v2: i32,
-    v3: i32,
-}
-
-impl Scalar {
-    /// Creates a new scalar object.
-    pub fn new(v0: i32, v1: i32, v2: i32, v3: i32) -> Self {
-        Scalar {
-            v0: v0,
-            v1: v1,
-            v2: v2,
-            v3: v3,
-        }
-    }
-}
-
-/// 2D integer points specified by its coordinates `x` and `y`.
-#[derive(Default, Debug, Clone, Copy)]
-#[repr(C)]
-pub struct Point2i {
-    /// x coordinate
-    pub x: i32,
-
-    /// y coordinate
-    pub y: i32,
-}
-
-/// 2D floating points specified by its coordinates `x` and `y`.
-#[derive(Default, Debug, Clone, Copy)]
-#[repr(C)]
-pub struct Point2f {
-    /// x coordinate
-    pub x: f32,
-
-    /// y coordinate
-    pub y: f32,
-}
-
-/// `Size2i` struct is used for specifying the size (`width` and `height` as
-/// `i32`) of an image or rectangle.
-#[derive(Default, Debug, Clone, Copy)]
-#[repr(C)]
-pub struct Size2i {
-    /// width
-    pub width: i32,
-
-    /// height
-    pub height: i32,
-}
-
-impl Size2i {
-    /// Creates a new `Size2i` object with `width` and `height`
-    pub fn new(width: i32, height: i32) -> Self {
-        Size2i {
-            width: width,
-            height: height,
-        }
-    }
-}
-
-/// `Size2f` struct is used for specifying the size (`width` and `height` as
-/// `f32`) of an image or rectangle.
-#[derive(Default, Debug, Clone, Copy)]
-#[repr(C)]
-pub struct Size2f {
-    /// width
-    pub width: f32,
-
-    /// height
-    pub height: f32,
-}
-
-/// The `Rect` defines a rectangle in integer.
-#[derive(Default, Debug, Clone, Copy, PartialEq, Eq)]
-#[repr(C)]
-pub struct Rect {
-    /// x coordinate of the left-top corner
-    pub x: i32,
-    /// y coordinate of the left-top corner
-    pub y: i32,
-    /// width of this rectangle
-    pub width: i32,
-    /// height of this rectangle
-    pub height: i32,
-}
-
-impl Rect {
-    /// Creates a new `Rect` with (x, y, width, height) parameters.
-    pub fn new(x: i32, y: i32, width: i32, height: i32) -> Self {
-        Rect {
-            x: x,
-            y: y,
-            width: width,
-            height: height,
-        }
-    }
-
-    /// Scales the rectangle by the specified ratio.
-    pub fn scale(&self, ratio: f32) -> Rect {
-        let new_x = ((1.0 - ratio) * (self.width as f32) / 2.0) as i32 + self.x;
-        let new_y = ((1.0 - ratio) * (self.height as f32) / 2.0) as i32 + self.y;
-        let new_w = ((self.width as f32) * ratio) as i32;
-        let new_h = ((self.height as f32) * ratio) as i32;
-        Rect {
-            x: new_x,
-            y: new_y,
-            width: new_w,
-            height: new_h,
-        }
-    }
-
-    /// Normalize the rectangle according to the image (if the rectangle is
-    /// inside the image, then the result should be all within (0, 1).
-    pub fn normalize_to_mat(&self, mat: &Mat) -> Rect2f {
-        Rect2f {
-            x: (self.x as f32) / (mat.cols as f32),
-            y: (self.y as f32) / (mat.rows as f32),
-            width: (self.width as f32) / (mat.cols as f32),
-            height: (self.height as f32) / (mat.rows as f32),
-        }
-    }
-}
-
-/// The `Rect2f` are rectangles in float.
-#[derive(Default, Debug, Clone, Copy)]
-pub struct Rect2f {
-    pub x: f32,
-    pub y: f32,
-    pub width: f32,
-    pub height: f32,
-}
-
-impl Rect2f {
-    /// Normalize the rectangle according to the image. This will restore the
-    /// Rect in absolute pixel numbers.
-    pub fn normalize_to_mat(&self, mat: &Mat) -> Rect {
-        Rect {
-            x: (self.x * mat.cols as f32) as i32,
-            y: (self.y * mat.rows as f32) as i32,
-            width: (self.width * mat.cols as f32) as i32,
-            height: (self.height * mat.rows as f32) as i32,
-        }
-    }
-}
-
-#[repr(C)]
-pub struct CVecOfRect {
-    pub array: *mut Rect,
-    pub size: usize,
-}
-
-impl Default for CVecOfRect {
-    fn default() -> Self {
-        CVecOfRect {
-            array: ::std::ptr::null_mut::<Rect>(),
-            size: 0,
-        }
-    }
-}
-
-impl Drop for CVecOfRect {
-    fn drop(&mut self) {
-        extern "C" {
-            fn cv_vec_of_rect_drop(_: *mut CVecOfRect);
-        }
-        unsafe {
-            cv_vec_of_rect_drop(self);
-        }
-    }
-}
-
-impl CVecOfRect {
-    pub fn rustify(self) -> Vec<Rect> {
-        (0..self.size)
-            .map(|i| unsafe { *(self.array.offset(i as isize)) })
-            .collect::<Vec<_>>()
-    }
-}
-
-#[repr(C)]
-pub struct CVecDouble {
-    array: *mut c_double,
-    size: usize,
-}
-
-
-impl CVecDouble {
-    pub fn rustify(self) -> Vec<f64> {
-        (1..self.size)
-            .map(|i| unsafe { *(self.array.offset(i as isize)) })
-            .collect::<Vec<_>>()
-    }
-}
-
-impl Default for CVecDouble {
-    fn default() -> Self {
-        CVecDouble {
-            array: ::std::ptr::null_mut::<c_double>(),
-            size: 0,
-        }
-    }
-}
-
-/// Line type
-#[derive(Debug, PartialEq, Clone, Copy)]
-pub enum LineTypes {
-    /// Default type
-    Filled = -1,
-
-    /// 4-connected line
-    Line4 = 4,
-
-    /// 8-connected line
-    Line8 = 8,
-
-    /// antialiased line
-    LineAA = 16,
-}
-
-extern "C" {
-    fn cv_mat_new() -> *mut CMat;
-    fn cv_mat_new_with_size(rows: c_int, cols: c_int, t: i32) -> *mut CMat;
-    fn cv_mat_zeros(rows: c_int, cols: c_int, t: i32) -> *mut CMat;
-    fn cv_mat_from_buffer(rows: c_int, cols: c_int, t: i32, buffer: *const c_uchar) -> *mut CMat;
-    fn cv_mat_is_valid(mat: *mut CMat) -> bool;
-    fn cv_mat_rows(cmat: *const CMat) -> c_int;
-    fn cv_mat_cols(cmat: *const CMat) -> c_int;
-    fn cv_mat_depth(cmat: *const CMat) -> c_int;
-    fn cv_mat_channels(cmat: *const CMat) -> c_int;
-    fn cv_mat_data(cmat: *const CMat) -> *const c_uchar;
-    fn cv_mat_total(cmat: *const CMat) -> size_t;
-    fn cv_mat_elem_size(cmat: *const CMat) -> size_t;
-    fn cv_mat_type(cmat: *const CMat) -> c_int;
-    fn cv_mat_roi(cmat: *const CMat, rect: Rect) -> *mut CMat;
-    fn cv_mat_logic_and(cimage: *mut CMat, cmask: *const CMat);
-    fn cv_mat_flip(src: *mut CMat, code: c_int);
-    fn cv_mat_drop(mat: *mut CMat);
-}
-
-/// A flag to specify how to flip the image. see
-/// [Mat::flip](struct.Mat.html#method.flip)
-#[derive(Debug, Clone, Copy)]
-pub enum FlipCode {
-    /// Along x-axis: dst[i, j] = src[src.rows - i - 1, j]
-    XAxis,
-    /// Along y-axis: dst[i, j] = src[i, src.cols - j - 1]
-    YAxis,
-    /// Along both axis: dst[i, j] = src[src.rows - i - 1, src.cols - j - 1]
-    XYAxis,
+    pub(crate) inner: *mut CMat,
 }
 
 impl Mat {
     #[inline]
     /// Creates a `Mat` object from raw `CMat` pointer. This will read the rows
     /// and cols of the image.
-    pub fn from_raw(raw: *mut CMat) -> Mat {
+    pub(crate) fn from_raw(raw: *mut CMat) -> Mat {
         Mat {
             inner: raw,
-            rows: unsafe { cv_mat_rows(raw) },
-            cols: unsafe { cv_mat_cols(raw) },
-            depth: unsafe { cv_mat_depth(raw) },
-            channels: unsafe { cv_mat_channels(raw) },
         }
     }
 
     /// Creates an empty `Mat` struct.
     pub fn new() -> Mat {
-        let m = unsafe { cv_mat_new() };
-        Mat::from_raw(m)
+        Mat::from_raw(CMat::new())
     }
 
     /// Creates a new `Mat` from buffer. Note that internally opencv function
@@ -348,8 +60,8 @@ impl Mat {
     }
 
     /// Create an empty `Mat` with specific size (rows, cols and types).
-    pub fn with_size(rows: i32, cols: i32, t: i32) -> Self {
-        let m = unsafe { cv_mat_new_with_size(rows, cols, t) };
+    pub fn with_size(rows: c_int, cols: c_int, mat_type: MatType) -> Self {
+        let m = unsafe { cv_mat_new_with_size(rows, cols, mat_type.as_opencv_value()) };
         Mat::from_raw(m)
     }
 
@@ -379,9 +91,22 @@ impl Mat {
         unsafe { cv_mat_elem_size(self.inner) }
     }
 
+    /// Returns the height of this matrix.
+    pub fn rows(&self) -> c_int {
+        unsafe { cv_mat_rows(self.inner) }
+    }
+
+    /// Returns the width of this matrix.
+    pub fn cols(&self) -> c_int {
+        unsafe { cv_mat_cols(self.inner) }
+    }
+
     /// Returns the size of this matrix.
     pub fn size(&self) -> Size2i {
-        Size2i::new(self.cols, self.rows)
+        Size2i {
+            width: self.cols(),
+            height: self.rows(),
+        }
     }
 
     /// Check if the `Mat` is valid or not.
@@ -416,12 +141,12 @@ impl Mat {
         }
     }
 
-    /// Returns the images type. For supported types, please see
-    /// [CvType](enum.CvType).
-    pub fn cv_type(&self) -> Result<CvType> {
-        let t = unsafe { cv_mat_type(self.inner) };
-        let e = ErrorKind::NumFromPrimitive(t as i64).into();
-        num::FromPrimitive::from_i32(t).ok_or(e)
+    /// Returns the image's type.
+    pub fn mat_type(&self) -> MatType {
+        let raw_type = unsafe { cv_mat_type(self.inner) };
+
+        // all opencv types are ok, so unwrap instead of returning Result
+        MatType::from_opencv_value(raw_type).unwrap()
     }
 }
 
@@ -431,6 +156,62 @@ impl Drop for Mat {
             cv_mat_drop(self.inner);
         }
     }
+}
+
+// TODO(benzh): Should consider Unique<T>,
+// https://github.com/rust-lang/rust/issues/27730
+unsafe impl Send for Mat {}
+
+/// The `Rect2f` are rectangles in float.
+#[derive(Default, Debug, Clone, Copy)]
+pub struct Rect2f {
+    pub x: f32,
+    pub y: f32,
+    pub width: f32,
+    pub height: f32,
+}
+
+impl Rect2f {
+    /// Normalize the rectangle according to the image. This will restore the
+    /// Rect in absolute pixel numbers.
+    pub fn normalize_to_mat(&self, mat: &Mat) -> Rect {
+        let cols = mat.cols();
+        let rows = mat.rows();
+        Rect {
+            x: (self.x * cols as f32) as i32,
+            y: (self.y * rows as f32) as i32,
+            width: (self.width * cols as f32) as i32,
+            height: (self.height * rows as f32) as i32,
+        }
+    }
+}
+
+/// Line type
+#[derive(Debug, PartialEq, Clone, Copy)]
+pub enum LineTypes {
+    /// Default type
+    Filled = -1,
+
+    /// 4-connected line
+    Line4 = 4,
+
+    /// 8-connected line
+    Line8 = 8,
+
+    /// antialiased line
+    LineAA = 16,
+}
+
+/// A flag to specify how to flip the image. see
+/// [Mat::flip](struct.Mat.html#method.flip)
+#[derive(Debug, Clone, Copy)]
+pub enum FlipCode {
+    /// Along x-axis: dst[i, j] = src[src.rows - i - 1, j]
+    XAxis,
+    /// Along y-axis: dst[i, j] = src[i, src.cols - j - 1]
+    YAxis,
+    /// Along both axis: dst[i, j] = src[src.rows - i - 1, src.cols - j - 1]
+    XYAxis,
 }
 
 /// Here is the `CvType` in an easy-to-read table.
@@ -456,77 +237,68 @@ pub enum CvType {
     Cv8UC3 = 16,
 }
 
-/// This struct represents a rotated (i.e. not up-right) rectangle. Each
-/// rectangle is specified by the center point (mass center), length of each
-/// side (represented by `Size2f`) and the rotation angle in degrees.
-#[derive(Default, Debug, Clone, Copy)]
-#[repr(C)]
-pub struct RotatedRect {
-    center: Point2f,
-    size: Size2f,
-    angle: f32,
+/// Channel depths of mats.
+#[derive(Debug, PartialEq, Clone, Copy, FromPrimitive)]
+pub enum MatDepth {
+    /// `u8`
+    Unsigned8 = 0,
+    /// `i8`
+    Signed8 = 1,
+    /// `u16`
+    Unsigned16 = 2,
+    /// `i16`
+    Signed16 = 3,
+    /// `i32`
+    Signed32 = 4,
+    /// `f32`
+    Float32 = 5,
+    /// `f64`
+    Float64 = 6,
+    /// Custom, user-defined depth
+    UserDefined = 7
 }
 
-impl RotatedRect {
-    /// Return 4 vertices of the rectangle.
-    pub fn points(&self) -> [Point2f; 4] {
-        let angle = self.angle * ::std::f32::consts::PI / 180.0;
+/// Represents a valid mat type.
+///
+/// A mat type consists of a channel count and the depth per channel.
+/// The maximum supported channel count is 511.
+#[derive(Debug, PartialEq, Clone, Copy)]
+pub struct MatType {
+    pub(crate) depth: MatDepth,
+    pub(crate) channels: u16,
+}
 
-        let b = angle.cos() * 0.5;
-        let a = angle.sin() * 0.5;
+impl MatType {
+    pub(crate) const MAX_CHANNELS: u16 = 512;
 
-        let mut pts: [Point2f; 4] = [Point2f::default(); 4];
-        pts[0].x = self.center.x - a * self.size.height - b * self.size.width;
-        pts[0].y = self.center.y + b * self.size.height - a * self.size.width;
-        pts[1].x = self.center.x + a * self.size.height - b * self.size.width;
-        pts[1].y = self.center.y - b * self.size.height - a * self.size.width;
-
-        pts[2].x = 2.0 * self.center.x - pts[0].x;
-        pts[2].y = 2.0 * self.center.y - pts[0].y;
-        pts[3].x = 2.0 * self.center.x - pts[1].x;
-        pts[3].y = 2.0 * self.center.y - pts[1].y;
-        pts
+    /// Initializes a new mat type.
+    ///
+    /// Returns `Ok<MatType>` if the channel count supplied is 511 or less.
+    pub fn new(depth: MatDepth, channels: u16) -> Result<Self> {
+        if channels < Self::MAX_CHANNELS {
+            Ok(Self {
+                depth,
+                channels
+            })
+        } else {
+            Err(ErrorKind::UnsupportedChannelCount(channels, Self::MAX_CHANNELS).into())
+        }
     }
 
-    /// Return the minimal up-right rectangle containing the rotated rectangle
-    pub fn bounding_rect(&self) -> Rect {
-        let pt = self.points();
-        let x = pt.iter().map(|p| p.x).fold(0. / 0., f32::min).floor() as i32;
-        let y = pt.iter().map(|p| p.y).fold(0. / 0., f32::min).floor() as i32;
+    /// Returns the depth per channel.
+    pub fn depth(&self) -> MatDepth {
+        self.depth
+    }
 
-        let width = pt.iter().map(|p| p.x).fold(0. / 0., f32::max).ceil() as i32 - x + 1;
-        let height = pt.iter().map(|p| p.y).fold(0. / 0., f32::max).ceil() as i32 - y + 1;
-        Rect::new(x, y, width, height)
+    /// Returns the channel count.
+    pub fn channels(&self) -> u16 {
+        self.channels
     }
 }
 
 // =============================================================================
 // core array
 // =============================================================================
-extern "C" {
-    fn cv_in_range(cmat: *const CMat, lowerb: Scalar, upperb: Scalar, dst: *mut CMat);
-    fn cv_mix_channels(
-        cmat: *const CMat,
-        nsrcs: isize,
-        dst: *mut CMat,
-        ndsts: isize,
-        from_to: *const i32,
-        npairs: isize,
-    );
-    fn cv_normalize(
-        csrc: *const CMat,
-        cdst: *mut CMat,
-        alpha: c_double,
-        beta: c_double,
-        norm_type: c_int,
-    );
-
-    fn cv_bitwise_and(src1: *const CMat, src2: *const CMat, dst: *mut CMat);
-    fn cv_bitwise_not(src: *const CMat, dst: *mut CMat);
-    fn cv_bitwise_or(src1: *const CMat, src2: *const CMat, dst: *mut CMat);
-    fn cv_bitwise_xor(src1: *const CMat, src2: *const CMat, dst: *mut CMat);
-    fn cv_count_non_zero(src: *const CMat) -> i32;
-}
 
 /// Normalization type. Please refer to [OpenCV's
 /// documentation](http://docs.cv.org/trunk/d2/de8/group__core__array.html).
@@ -571,7 +343,7 @@ impl Mat {
         from_to: *const i32,
         npairs: isize,
     ) -> Mat {
-        let m = Mat::with_size(self.rows, self.cols, self.depth);
+        let m = Mat::with_size(self.rows(), self.cols(), self.mat_type());
         unsafe {
             cv_mix_channels(self.inner, nsrcs, m.inner, ndsts, from_to, npairs);
         }

@@ -2,56 +2,14 @@
 //! imgproc](http://docs.opencv.org/3.1.0/d7/dbd/group__imgproc.html).
 
 use super::core::*;
-use libc::{c_double, c_float, c_int};
+use libc::c_int;
+
+use super::wrapper::*;
 
 // =============================================================================
 //  Imgproc
 // =============================================================================
-extern "C" {
-    fn cv_rectangle(cmat: *mut CMat, rect: Rect, color: Scalar, thickness: c_int, linetype: c_int);
 
-    fn cv_ellipse(
-        cmat: *mut CMat,
-        center: Point2i,
-        axes: Size2i,
-        angle: c_double,
-        start_angle: c_double,
-        end_angle: c_double,
-        color: Scalar,
-        thickness: c_int,
-        linetype: c_int,
-        shift: c_int,
-    );
-
-    fn cv_cvt_color(cmat: *const CMat, output: *mut CMat, code: i32);
-    fn cv_pyr_down(cmat: *const CMat, output: *mut CMat);
-    fn cv_resize(
-        from: *const CMat,
-        to: *mut CMat,
-        dsize: Size2i,
-        fx: c_double,
-        fy: c_double,
-        interpolation: c_int,
-    );
-    fn cv_calc_hist(
-        cimages: *const CMat,
-        nimages: i32,
-        channels: *const c_int,
-        cmask: *const CMat,
-        chist: *mut CMat,
-        dims: c_int,
-        hist_size: *const c_int,
-        ranges: *const *const c_float,
-    );
-    fn cv_calc_back_project(
-        cimages: *const CMat,
-        nimages: c_int,
-        channels: *const c_int,
-        chist: *const CMat,
-        cback_project: *mut CMat,
-        ranges: *const *const c_float,
-    );
-}
 
 /// Color conversion code used in
 /// [cvt_color](../struct.Mat.html#method.cvt_color).

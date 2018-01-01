@@ -8,15 +8,14 @@ use std::ffi::CString;
 use std::path::Path;
 use std::vec::Vec;
 
+use super::wrapper::*;
+
 /// An object detect trait.
 pub trait ObjectDetect {
     /// Detects the object inside this image and returns a list of detections
     /// with their confidence.
     fn detect(&self, image: &Mat) -> Vec<(Rect, f64)>;
 }
-
-/// The opaque type for C
-enum CCascadeClassifier {}
 
 /// Cascade classifier class for object detection.
 #[derive(Debug)]
@@ -132,10 +131,6 @@ impl Drop for CascadeClassifier {
         }
     }
 }
-
-#[derive(Debug, Clone, Copy)]
-/// Opaque type for C/C++ SvmDetector object
-pub enum CSvmDetector {}
 
 /// SvmDetector
 #[derive(Debug)]
@@ -286,8 +281,6 @@ impl Default for HogParams {
     }
 }
 
-enum CHogDescriptor {}
-
 /// `HogDescriptor` implements Histogram of Oriented Gradients.
 #[derive(Debug)]
 pub struct HogDescriptor {
@@ -298,23 +291,6 @@ pub struct HogDescriptor {
 }
 
 unsafe impl Send for HogDescriptor {}
-
-extern "C" {
-    fn cv_hog_new() -> *mut CHogDescriptor;
-    fn cv_hog_drop(hog: *mut CHogDescriptor);
-    fn cv_hog_set_svm_detector(hog: *mut CHogDescriptor, svm: *mut CSvmDetector);
-    fn cv_hog_detect(
-        hog: *mut CHogDescriptor,
-        image: *mut CMat,
-        objs: *mut CVecOfRect,
-        weights: *mut CVecDouble,
-        win_stride: Size2i,
-        padding: Size2i,
-        scale: c_double,
-        final_threshold: c_double,
-        use_means_shift: bool,
-    );
-}
 
 impl Default for HogDescriptor {
     fn default() -> HogDescriptor {

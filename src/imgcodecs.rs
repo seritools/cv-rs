@@ -3,8 +3,10 @@
 
 use std::ffi::CString;
 use std::path::Path;
-use super::core::{CMat, Mat};
-use super::libc::{c_char, c_int, size_t, uint8_t};
+use super::core::Mat;
+use super::libc::c_int;
+
+use super::wrapper::*;
 
 // =============================================================================
 //  Imgproc
@@ -100,25 +102,6 @@ pub enum ImwritePngFlags {
     /// Using this value prevents the use of dynamic Huffman codes, allowing for
     /// a simpler decoder for special applications.
     ImwritePngStrategyFixed = 4,
-}
-
-extern "C" {
-    fn cv_imread(input: *const c_char, flags: c_int) -> *mut CMat;
-    fn cv_imdecode(buf: *const uint8_t, l: size_t, m: c_int) -> *mut CMat;
-    fn cv_imencode(
-        ext: *const c_char,
-        inner: *const CMat,
-        flag_ptr: *const c_int,
-        flag_size: size_t,
-    ) -> ImencodeResult;
-
-}
-
-#[repr(C)]
-struct ImencodeResult {
-    status: bool,
-    buf: *mut u8,
-    size: usize,
 }
 
 impl Mat {

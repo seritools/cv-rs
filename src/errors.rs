@@ -17,5 +17,9 @@ error_chain!{
             description("fail to convert from primitive "),
             display("fail to convert from primitive: '{:?}'", n),
         }
+        UnsupportedChannelCount(supplied: u16, max: u16) {
+            description("unsupported matrix channel count"),
+            display("unsupported matrix channel count (max is {:?}): '{:?}'", max, supplied),
+        }
     }
 }

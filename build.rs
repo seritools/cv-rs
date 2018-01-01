@@ -56,6 +56,6 @@ fn main() {
         opencv_config.file("native/opencv-gpu.cc");
     }
 
-    opencv_config.compile("libopencv-wrapper.a");
+    opencv_config.compile("opencv-wrapper");
     opencv_link();
 }

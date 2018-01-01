@@ -27,17 +27,20 @@ extern crate num;
 extern crate num_derive;
 
 mod core;
+mod wrapper;
 pub use core::CvType;
 pub use core::FlipCode;
 pub use core::LineTypes;
 pub use core::Mat;
+pub use core::MatType;
+pub use core::MatDepth;
 pub use core::NormTypes;
-pub use core::Point2f;
-pub use core::Point2i;
-pub use core::Rect;
-pub use core::Scalar;
-pub use core::Size2f;
-pub use core::Size2i;
+pub use wrapper::Point2f;
+pub use wrapper::Point2i;
+pub use wrapper::Rect;
+pub use wrapper::Scalar;
+pub use wrapper::Size2f;
+pub use wrapper::Size2i;
 
 pub mod errors;
 pub mod imgproc;

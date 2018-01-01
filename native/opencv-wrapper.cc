@@ -35,7 +35,7 @@ CvMatrix* cv_mat_from_buffer(int rows, int cols, int type, const uint8_t* buf) {
 
 bool cv_mat_is_valid(CvMatrix* cmat) {
     cv::Mat* mat = reinterpret_cast<cv::Mat*>(cmat);
-    return mat->data != NULL;
+    return mat->data != nullptr;
 }
 
 CvMatrix* cv_mat_roi(CvMatrix* cmat, Rect crect) {
@@ -57,8 +57,13 @@ void cv_mat_flip(CvMatrix* cimage, int code) {
 }
 
 CvMatrix* cv_imread(const char* const filename, int flags) {
-    cv::Mat* image = new cv::Mat();
+    cv::Mat* image;
     *image = cv::imread(filename, flags);
+    if (image->data == nullptr) {
+        // image read failed for whatever reason
+        delete image;
+        return nullptr;
+    }
     return reinterpret_cast<CvMatrix*>(image);
 }
 
